@@ -1,0 +1,757 @@
+@charset "utf-8";
+
+body {
+    margin: 0;
+    font: 16px/22px 'Nunito-regular';
+}
+@font-face {
+    font-family: 'Nunito-regular';
+    src: url(fonts/static/Nunito-Regular.ttf);
+    font-style: normal; 
+    font-weight: normal;
+}
+
+
+input {
+    width: 100%;
+    font: inherit;
+}
+
+main[direction="authForm"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 170px;
+}
+
+.auth-logo {
+    display: flex;
+    font-size: 43.8265px;
+    color: #2F3133;
+    margin-bottom: 74px;
+    
+}
+
+.icon-vec {
+    margin-right: 14px;
+    width: 35px;
+    height: 35px;
+    padding-top: 12px;
+}
+
+.main-logo {
+    position: relative;
+    margin-bottom: -45px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 475px;
+    left: 723px;
+    top: 498px;
+    background: #F1F0F7;
+    
+}
+input {
+    outline: none;
+}
+
+.auth-input {
+    box-sizing: border-box;
+    padding: 10px 10px 10px 16px;
+    width: 415px;
+    height: 42px;
+    background: #FFFFFF;
+    border: 1px solid #FAFAFA;
+    border-radius: 2px;
+    margin-top: 77px;
+    margin-left: 30px;
+}
+
+.auth-input::placeholder { 
+    color: #9089A0; 
+    background: url(img/Vector2.svg) no-repeat;
+    background-position-y: 3px;
+    padding-left: 30px;
+
+}
+
+main[com="email"] .input-code { display: none; }
+
+.input-code {
+    margin-top: 0px;
+}
+
+div[but="sendForm"] {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 10px 10px 16px;
+    gap: 10px;
+    width: 415px;
+    height: 42px;
+    background: #8051BB;
+    border: 1px solid #8051BB;
+    border-radius: 2px;
+    color: white;
+    margin-left: 30px;
+    cursor: pointer;
+    margin-bottom: 30px;
+}
+
+.footer {
+    font-size: 20px;
+    line-height: 27px;
+    color: #9089A0;
+    display: flex;
+    margin-top: 285px;
+    margin-bottom: 55px;
+}
+
+.footer-help {
+    margin-left: 10px;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 60px;
+    left: 0px;
+    top: 0px;
+    background: #2F3133;
+}
+
+.logo-header {
+    display: flex;
+    height: 27px;
+    font-size: 20px;
+    color: #FFFFFF;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.logo-vec-header {
+    color: #FFFFFF;
+    width: 16px;
+    height: 16px;
+    margin-top: 5.5px;
+    margin-right: 10px;
+}
+
+.todogram-logo {
+    width: 119px;
+    height: 27px;
+}
+
+.todogram-auth {
+    width: 261px;
+    height: 60px;
+}
+
+.exit {
+    width: 21px;
+    height: 24px;
+    margin-right: 18px;
+}
+
+.main {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main-projects {
+    width: 300px;
+    height: 100vh;
+    background-color: #FAFAFA;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+}
+
+.my-tasks-projects {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 260px;
+    height: 36px;
+    border-radius: 2px;
+    margin-left: 20px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+.projects-icon {
+    margin-left: 10px;
+}
+
+.counter {
+    font-size: 12px;  
+    color: #9089A0;
+    width: 19px;
+    text-align: center;
+}
+
+.task-counter {  
+    margin-top: 3px;  
+    margin-right: 10px;
+}
+
+.projects-add {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 260px;
+    height: 19px;
+    border-radius: 2px;
+    margin-left: 20px;
+    margin-top: 18.5px;
+    padding-left: 10.5px;
+}
+
+.project-down {
+    cursor: pointer;
+}
+
+.rotate {
+    transform: rotate(-90deg);
+}
+
+.rotate180 {
+    transform: rotate(180deg);
+}
+
+.invisible {
+    display: none;
+}
+
+.projects-text {
+    color: #2F3133;
+    margin-left: 11.5px;
+    margin-right: 130px;
+    font-weight: 600;
+}
+
+.add-project-icon {
+    cursor: pointer;
+}
+
+.project {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 36px;
+    border-radius: 2px;
+    margin-left: 20px;
+    margin-top: 18.5px;
+    padding-left: 12px;
+    font-size: 14px;
+    line-height: 19px;
+}
+
+.project:hover {
+    background: #EEEEEE;
+    cursor: pointer;
+}
+
+.proj-text {
+    margin-left: 12px;
+    width: 200px;
+}
+
+.project-circle {
+    width: 10px;
+    height: 10px;
+    background: #9089A0;
+    border-radius: 10px;
+}
+
+.chat {
+    width: 453px;
+    height: 100vh;
+    background-color: #FAFAFA;
+    position: sticky;
+    top: 0;
+}
+
+.tasks {
+    width: 1167px;
+}
+
+.head-tasks {
+    display: flex;
+    justify-content: space-between;
+    padding: 44.5px 40px 38.5px 30px;
+    align-items: baseline;
+}
+
+.add-task-but {
+    display: flex;
+    height: 36px;
+    align-items: center;
+    padding-right: 10px;
+    padding-left: 34px;
+    cursor: pointer;
+    border-radius: 2px;
+    background: url(img/add-task.svg) no-repeat left 13px bottom 13px #F1F0F7;
+}
+
+.add-task-but:hover {
+    background: url(img/add-task-white.svg) no-repeat left 13px bottom 13px #8051BB;
+    color: #FFFFFF;
+}
+
+.add-task-icon {
+    width: 10px;
+    height: 10px;
+    margin-left: 15px;
+    margin-right: 13px;
+}
+
+.my-tasks-text {
+    font-size: 20px;
+    color: #2F3133;
+    border: none;
+    outline: none;
+    margin-left: 10px;
+    width: 100%;
+    padding: 0px;
+}
+
+.my-tasks-text-main {
+    font-weight: 600;
+}
+
+.my-task-circle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.project-task-logo {
+    display: flex;
+    justify-content: center;
+    margin-top: 106.5px;
+    margin-bottom: 34px;
+}
+
+.create-project-text {
+    text-align: center;
+    font-size: 20px;
+
+}
+
+.task-zone {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.item-text {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.task-item {
+    padding: 10px 10px 10px 16px;
+    background-color: #F1F0F7;
+    display: flex;
+    margin-bottom: 14px;
+    border-radius: 2px;
+    flex-direction: column;
+    position: relative;
+}
+
+.task-item-render {
+    padding: 10px 10px 10px 16px;
+    background-color: #FAFAFA;
+    display: flex;
+    margin-bottom: 14px;
+    flex-direction: column;
+}
+
+.task-overdue {
+    background-color: #FFE0DA;
+}
+
+.checkbox-block {
+    width: 21px;
+    margin-right: 15px;
+}
+.task-checkbox {
+    display: none;
+}
+
+label[class="label-check"]::before {
+    content: " ";
+    color: #000;
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    text-indent: 0px;
+    width: 20px;
+    height: 20px;
+    background: #FFF;
+    border: 1px solid #D7D3E1;
+    border-image: initial;
+    vertical-align: middle;
+    border-radius: 2px;
+    margin-top: 5px;
+}
+
+.task-checkbox:checked + label:before {
+    content: '';
+    background-image: url(img/check.svg);
+    border: none;
+    margin-right: 1px;
+}
+
+.item-flex,
+.inputs-flex {
+    display: flex;
+    width: 100%;
+}
+
+.item-input {
+    background: #F1F0F7;
+    outline: none;
+    color: #2F3133;;
+    min-width: 200px;
+    border: none;
+    margin-right: 20px;
+}
+
+.done-description-svg {
+    width: 13px;
+    cursor: pointer;
+}
+
+.item-input-render {
+    background: #FAFAFA;
+    outline: none;
+    color: #2F3133;;
+    min-width: 200px;
+    border: none;
+    margin-right: 20px;
+    padding-bottom: 4px;
+    padding-top: 6px;
+}
+
+.input-overdue {
+    background: #FFE0DA;
+}
+
+.task-date {
+    display: none;
+}
+
+.flex-svg-date {
+    display: flex;
+}
+
+.svg-down {
+    width: 32px;
+    height: 32px;
+    background-color: white;
+    margin-right: 10px;
+    text-align: center;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.done-description-item {
+    margin-top: 12px;
+}
+
+.datetime-block {
+    width: 32px;
+    height: 32px;
+    background: url(img/clock.svg) no-repeat white center;
+    cursor: pointer;
+    border-radius: 2px;
+}
+.datetime-block-overdue {
+    width: 32px;
+    height: 32px;
+    background: url(img/clock-white.svg) no-repeat #CE5252 center;
+    cursor: pointer;
+    border-radius: 2px;
+    border-radius: 0px 2px 2px 0px;
+}
+
+
+.delete-point {
+    width: 12px;
+    height: 12px;
+    margin-top: 7px;
+    margin-left: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.textarea-task {
+    margin-right: 8px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    padding: 10px;
+    height: 86px;
+    border: 1px solid #D7D3E1;
+    border-radius: 2px;
+    outline: none;
+    resize: none;
+    color: #2F3133;
+    overflow: hidden;
+}
+
+.delete-project {
+    cursor: pointer;
+    background-color: #FFE0DA;
+    padding: 9px 11px 5px 11px;
+    border-radius: 2px;
+    margin-left: 28px;
+}
+
+.add-delete-project {
+    display: flex;
+    flex: none;
+}
+
+.done-tasks {
+    margin-top: 34px;
+    width: 100%;
+}
+
+.done-tasks-border {
+    border-bottom: 1px solid #F1F0F7;
+    margin-bottom: 11px;
+    margin-left: 10px;
+    width: 100%;
+}
+
+.done-task-svg {
+    margin-right: 11.5px;
+}
+
+.done-tasks-head {
+    background: #FFFFFF;
+    display: flex;
+    margin-top: -12px;
+    padding-right: 10px;
+    cursor: pointer; 
+    width: 100%;
+}
+
+.flex-none {
+    flex: none;
+}
+
+.done-tasks-items {
+    margin-top: 14px;
+}
+
+.item-done-text {
+    border: none;
+    color: #2f313387;
+    background-color: #f1f0f700;
+}
+
+.task-done-item {
+    padding: 10px 10px 10px 16px;
+    background-color: #f1f0f77d;
+    border: 1px solid #f1f0f700;
+    border-radius: 2px;
+    display: flex;
+    margin-bottom: 14px;
+}
+
+[select] {
+    background: #EEEEEE;
+}
+
+.choose-color {
+    width: 210px;
+    height: 120px;
+    background-color: #FFFFFF;
+    position: absolute;
+    top: 115px;
+    left: 41px;
+    border-radius: 2px;
+    box-shadow: 0 0 4px -2px black;
+    align-items: center;
+    display: none;
+    justify-content: space-evenly;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.choose-color-main {
+    top: 75px;
+    left: 470px;
+}
+
+.circle-color {
+    width: 40px;
+    height: 40px;
+    background: #9089A0;
+    border-radius: 26px;
+    box-shadow: 0px 0px 3px 0px;
+    cursor: pointer;
+}
+
+.circle-color:hover {
+    box-shadow: 0px 0px 5px 0px;
+}
+
+.flex {
+    display: flex;
+}
+
+.calendar {
+    width: 290px;
+    height: 348px;
+    border: 1px solid #F5F7FA;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 6px 15px -10px;
+    position: absolute;
+    background-color: white;
+    z-index: 1;
+    top: 10px;
+    right: 175px;
+}
+
+.monthYear {
+    display: flex;
+    margin-top: 15px;
+    justify-content: space-between;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.myBlock {
+    display: flex;
+}
+
+.year {
+    margin-left: 5px;
+}
+
+.week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    padding: 10px 8px;
+    background: #F5F7FA;
+    margin: 13px 5px;
+    text-align: center;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    padding-left: 13px;
+    padding-right: 13px;
+}
+
+.calendar-day {
+    width: 24px;
+    height: 21px;
+    text-align: center;
+    padding-bottom: 11px;
+    padding-top: 8px;
+    width: 100%;
+    color: #494E50;
+}
+
+.this-day {
+    color: #9234DD;
+}
+
+.calendar-day:hover {
+    background: #9089A0;
+    border-radius: 2px;
+    cursor: pointer;
+    color: #FFFFFF;
+}
+
+.day-err {
+    background: #CE5252;
+    border-radius: 2px;
+    cursor: pointer;
+    color: #FFFFFF;
+    transition: top 2s;
+}
+
+.day-err.calendar-day:hover {
+    background: #CE5252;
+}
+
+.dateSelected {
+    background: #9089A0;
+    border-radius: 2px;
+    color: #FFFFFF;
+}
+
+.dot-day {
+    width: 2px;
+    height: 2px;
+    border: 1px solid #9234DD;
+    background-color: #9234DD;
+    border-radius: 7px;
+    margin-left: 17px;
+}
+
+.calendar-day:hover .dot-day {
+    border: 1px solid #FFFFFF;
+    background-color: #FFFFFF;
+}
+
+.gray-day {
+    color: #A0A5B6;
+}
+
+.next,
+.prev {
+    cursor: pointer;
+}
+
+.day-month-item {
+    background: white;
+    text-align: center;
+    height: 27px;
+    width: 110px;
+    padding-top: 5px;
+    padding-left: 5px;
+    border-radius: 2px 0px 0px 2px;  
+}
+
+.day-month-item-overdue {
+    background: #CE5252;
+    color: white;
+}
+
+.astronaut {
+    text-align: center;
+    color: #2F3133;
+    font-size: 20px;
+    padding-bottom: 27px;
+}
+
+.input-color {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+}
+
+div[but="userExit"] {
+    cursor: pointer;
+}
