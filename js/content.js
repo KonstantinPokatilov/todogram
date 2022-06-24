@@ -307,6 +307,7 @@ const task = {
                 items.inputsDispatchEvent()  
                 task.updateProject()
                 butListener()
+                
         })      
     },
 
