@@ -302,7 +302,7 @@ const task = {
                 task.addBanner()
 
                 setTimeout(() => { butListener() }, 0)
-                console.log('q')
+                console.log('qqwe')
                 items.updateItems() 
                 items.inputsDispatchEvent()  
                 task.updateProject()
