@@ -543,10 +543,10 @@ const items = {
         
         if (parentId == 1) {
             const taskCounter = document.querySelector('.task-counter')
-            console.log(taskCounter)
             let count = taskCounter.textContent
             count++
             taskCounter.innerText = count
+            console.log(taskCounter.innerText)
         } else {
             document.querySelectorAll('.counter').forEach(element => {
                 const parent = element.closest('div[projectId]')
