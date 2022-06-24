@@ -2,15 +2,20 @@
 
 const inputs = {}
 
-document.addEventListener('keyup', event => {
-    if (event.ctrlKey && event.key == 'z') {
-        const name = document.querySelector('[name="email"]')
-        if (name) {
-            name.focus()
-            name.value = 'qwe@qwe.ru'
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('keyup', event => {
+        if (event.key == 'Enter') {
+            butSendForm()
         }
-        butSendForm()
-    }
+        if (event.ctrlKey && event.key == 'z') {
+            const name = document.querySelector('[name="email"]')
+            if (name) {
+                name.focus()
+                name.value = 'PokatilovK@vlfarm.ru'
+            }
+            butSendForm()
+        }
+    })
 })
 
 function butListener() {
@@ -53,22 +58,136 @@ function butSendForm() {
     if (direction == 'authForm' && com == 'code') {
         data['code'] = encodeURIComponent(document.querySelector('.input-code').value)
     }
-    console.log(data)
+    if (!data['email']) { 
+        validation('Введите email') 
+        return
+    }
+
     fetch('auth.php?direction=' + direction + '-' + com + '&data=' + JSON.stringify(data))
         .then(res => res.text())
         .then(text => {
-            if (com == 'email' && text) { document.querySelector('main').setAttribute('com', 'code') }
-            else if (com == 'code' && text) { 
-                location.reload() 
+            if (com == 'email' && text == 'true') { document.querySelector('main').setAttribute('com', 'code') }
+            else if (com == 'code' && text == 'true') { location.reload() }
+            else {
+                validation(text)
             }
         })
 }
 
-function addCode() {
-  
-    document.querySelector('.input-code').focus()
-    document.querySelector('.get-code').textContent = 'Войти'
+function validation(text) {
+    popUp.add(text, 'center', 'cls')
+}
 
+const popUp = {
+    
+    time: 2000,
+    types: { time: 'time', btn: 'btn', closing: 'cls' },
+
+    positions: {top: 'pop-top', right: 'pop-right', bottom: 'pop-bottom', left: 'pop-left', center: 'pop-center'},
+
+    popUpContainer: null,
+
+    maket: `<div class="notice"></div>
+            <div class="notice-description"></div>`,
+
+    buttons: `<div class="pop-buttons">
+                <div class="pop-button" but="popUp-popUpOk">Ок</div>
+                <div class="pop-button" but="popUp-popUpNot">Не ок</div>
+            </div>`,
+
+    close: `<div class="pop-buttons" but="popUp-closePopUp">
+                <div class="pop-button">Ок</div>
+            </div>`,
+   
+    init: function() {
+        this.popUpContainer = document.querySelector('.pop-up-container')
+
+        if (this.popUpContainer) {
+            this.popUpContainer.querySelector('.notice').innerText = ''
+        } else {
+            this.popUpContainer = document.createElement('div')
+            this.popUpContainer.classList.add('pop-up-container')
+            this.popUpContainer.innerHTML = popUp.maket
+
+            document.querySelector('body').insertAdjacentElement('beforeend', this.popUpContainer)
+        }
+    },
+
+    add: function(text, positionCommand, type) {     
+        this.init()
+
+        const position = {}
+
+        const positionCommandSlice = positionCommand.split('-')
+
+        if (positionCommand == 'center') {
+            this.popUpContainer.style.top = '40%'
+            this.popUpContainer.style.left = 'calc(50% - 310px)'
+            this.popUpContainer.style.width = '600px'
+            this.popUpContainer.style.height = '240px'
+            this.popUpContainer.style.opacity = '0'
+        } else if (positionCommandSlice.length == 2) {
+            position.x = positionCommandSlice[0]
+            position.y = positionCommandSlice[1]
+
+            this.popUpContainer.style[position.x] = '0px'
+            this.popUpContainer.style[position.y] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'
+        } else {
+            position.x = positionCommandSlice[0]
+
+            this.popUpContainer.style[position.x] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'
+        }
+
+        setTimeout(() => {
+            if (positionCommand == 'center') {
+                this.popUpContainer.style.opacity = '1'
+            } else if (positionCommandSlice.length == 2) {
+                this.popUpContainer.style[position.x] = '0px'
+                this.popUpContainer.style[position.y] = '10px'
+            } else if (positionCommandSlice.length == 1) {
+                this.popUpContainer.style[position.x] = '10px'
+            }
+        }, 0)
+        
+        const deleteButton = () => { 
+            let popUpButtons = null
+            if ( popUpButtons = this.popUpContainer.querySelector('.pop-buttons')) { popUpButtons.remove() } 
+        }
+
+        if (type == 'time') {
+            setTimeout(() => {
+                if (positionCommandSlice.length == 2) {
+                    this.popUpContainer.style[position.x] = '0px'
+                    this.popUpContainer.style[position.y] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'    
+                } else if (positionCommandSlice.length == 1) {
+                    this.popUpContainer.style[position.x] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'
+                }
+            }, this.time)
+            
+        } else if (type == 'btn') { 
+            deleteButton()
+            this.popUpContainer.insertAdjacentHTML('beforeend', popUp.buttons) 
+        } else if (type == 'cls') { 
+            deleteButton()
+            this.popUpContainer.insertAdjacentHTML('beforeend', popUp.close) 
+        }
+
+        this.popUpContainer.querySelector('.notice').innerText = text
+
+        butListener()
+    },
+
+    butClosePopUp: function() {
+        this.parentElement.remove()
+    },
+
+    butPopUpOk: function() {
+        console.log('Ок')
+    },
+
+    butPopUpNot: function() {
+        console.log('Не ок')
+    },
 }
 
 const cookie = {

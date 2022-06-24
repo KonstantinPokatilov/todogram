@@ -1,12 +1,16 @@
 <?php
+$user = User::get();
 
 $main = '<div class="header">
         <div class="logo-header" but="task-reloadPage">
             <img src="css/img/logo-header.svg" class="logo-vec-header" alt="">
             <img src="css/img/todogram.svg" class="todogram-logo" alt="">
         </div>
-        <div class="exit" but="userExit">
-            <img src="css/img/exit-icon.svg" alt="" class="icon-exit">
+        <div class="email-exit">
+            <div class="user-email">'.$user['email'].'</div>
+            <div class="exit" but="userExit">   
+                <img src="css/img/exit-icon.svg" alt="" class="icon-exit">
+            </div>
         </div>
     </div>
     <main class="main">
@@ -30,7 +34,7 @@ $main = '<div class="header">
         <div class="tasks">
             <div class="head-tasks">
                 <div class="my-task-circle">
-                    <input type="text" class="my-tasks-text my-tasks-text-main" value="Мои задачи">
+                    <input type="text" class="my-tasks-text my-tasks-text-main">
                 </div>
                 <div class="add-delete-project">
                     <div but="items-create" class="add-task-but">
@@ -53,7 +57,7 @@ $main = '<div class="header">
                 </div>
             </div>
         </div>
-        <div class="chat"></div>
+        <div class="chat"></div>   
     </main>';
     
 $script .= '<script src="/js/content.js"></script>';

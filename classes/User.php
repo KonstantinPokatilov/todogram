@@ -37,40 +37,40 @@ class User
 
     public static function auth(array $data = []) 
     {
-        if (self::get()) { return true; }
-        
-        
+        if (self::get()) { return 'true'; }
 
         if (isset($data['email']) && isset($data['code'])) {
             $email = $data['email'];
             $code = $data['code'];
         }
 
-        if (!isset($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return false; }
+        if (!isset($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return 'Неправильный email'; }
 
-        if (isset($email) && isset($code)) {
+        if (isset($email)) {
+            if (isset($code)) {
+                $user = self::get($data);
 
-            $user = self::get($data);
-
-            $decryptData = self::codeCipher($code, 'decrypt');
-            if ($decryptData['email'] == $user['email']) {
-                if ($decryptData['time'] - time() <= 900) {
-                    
-                    self::cookieCipher($decryptData, 'write');
-                    
-                    return true;
-                } else {
-                    return false;
+                $decryptData = self::codeCipher($code, 'decrypt');
+                if ($decryptData['email'] == $user['email']) {
+                    if (time() - $decryptData['time'] <= 900) {
+                        
+                        self::cookieCipher($decryptData, 'write');
+    
+                        return 'true';
+                    } else {
+                        return 'Срок действия кода истёк';
+                    }
                 }
+                return 'Неверный код';
             }
-            return false;
+            return 'Неправильный email';
         
         } else if (self::get($data)) {
             self::sendEmail($data['email'], 'auth to todogram', self::codeCipher($data['email']));
 
-            return true;
+            return 'true';
         }
-        return false;
+        return 'Нет доступа';
     }
 
     public static function codeCipher(string $text, string $command = 'encrypt') 
