@@ -302,12 +302,12 @@ const task = {
                 task.addBanner()
 
                 setTimeout(() => { butListener() }, 0)
-
+                console.log('q')
                 items.updateItems() 
                 items.inputsDispatchEvent()  
                 task.updateProject()
                 butListener()
-                
+
         })      
     },
 
