@@ -1,4 +1,4 @@
-<?php require_once 'function.php';
+<?php require_once '/var/www/html/function.php';
 
 $main = '<main direction="authForm" com="email">
             <div class="auth-logo">

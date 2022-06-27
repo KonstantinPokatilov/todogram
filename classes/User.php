@@ -19,22 +19,6 @@ class User
         return [];
     }
 
-    public static function add(array $data) : array
-    {
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return ['novalid email']; }
-
-        if (!$user_data) {
-            $userId = q('INSERT INTO user (create_at, pswd, email) VALUES (now(), 1, "'.$data['email'].'");');
-            $taskId = q('INSERT INTO task (task_name, user_id) VALUES ("Мои задачи", '.$userId.');');
-        }
-
-        $user_data = self::get($data);
-        
-        if ($user_data['id']) { self::cookieCipher($data, 'write'); }
-
-        return $user_data;
-    }
-
     public static function auth(array $data = []) 
     {
         if (self::get()) { return 'true'; }
@@ -119,15 +103,6 @@ class User
 
         return [];
     }
-
-    /*
-    public static function checkAuth() : bool
-    {
-        if (self::get()) { return true; }
-
-        return false;
-    }
-    */
 
     public static function sendEmail(string $to, string $subject, string $message) : bool
     {

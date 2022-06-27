@@ -63,19 +63,21 @@ function butSendForm() {
         return
     }
 
-    fetch('auth.php?direction=' + direction + '-' + com + '&data=' + JSON.stringify(data))
+    fetch('api/userRouter.php?direction=' + direction + '-' + com + '&data=' + JSON.stringify(data))
         .then(res => res.text())
         .then(text => {
-            if (com == 'email' && text == 'true') { document.querySelector('main').setAttribute('com', 'code') }
+            if (com == 'email' && text == 'true') { 
+                document.querySelector('main').setAttribute('com', 'code') 
+            }
             else if (com == 'code' && text == 'true') { location.reload() }
-            else {
+            else {console.log(text)
                 validation(text)
             }
         })
 }
 
 function validation(text) {
-    popUp.add(text, 'center', 'cls')
+    popUp.add(text, 'bottom', 'time')
 }
 
 const popUp = {
@@ -119,7 +121,7 @@ const popUp = {
         const position = {}
 
         const positionCommandSlice = positionCommand.split('-')
-
+        
         if (positionCommand == 'center') {
             this.popUpContainer.style.top = '40%'
             this.popUpContainer.style.left = 'calc(50% - 310px)'
@@ -134,8 +136,10 @@ const popUp = {
             this.popUpContainer.style[position.y] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'
         } else {
             position.x = positionCommandSlice[0]
-
+            position.x == 'left' || position.x == 'right' ? position.y = 'top' : position.y = 'left'        
             this.popUpContainer.style[position.x] = '-'+ (this.popUpContainer.clientWidth + 10) +'px'
+            this.popUpContainer.style[position.y] = 'calc(50% - 150px)'
+    
         }
 
         setTimeout(() => {

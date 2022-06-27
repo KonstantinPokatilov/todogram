@@ -14,7 +14,7 @@ function q(string $request) {
 }
 
 spl_autoload_register(function($class) {
-    $fn = 'classes/'.$class.'.php';
+    $fn = '/var/www/html/classes/'.$class.'.php';
     if (file_exists($fn)) { require $fn; }
 });
 

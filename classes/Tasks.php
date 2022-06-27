@@ -30,11 +30,18 @@ class Tasks
 
         if ($user = User::get()) {
 
-            // $db = q('SELECT id, task FROM user_tasks WHERE user_id = '.$user['id'].';');
             $db = q('
-                SELECT user_items.id AS item_id, user_items.name AS item_name, task.id AS task_id, task.task_name, user_items.state, user_items.description, task.color, item_date 
+                SELECT 
+                    user_items.id AS item_id, 
+                    user_items.name AS item_name, 
+                    task.id AS task_id, 
+                    task.task_name, 
+                    user_items.state,
+                    user_items.description, 
+                    task.color, 
+                    item_date 
                 FROM task
-                    LEFT JOIN user_items ON user_items.task_id = task.id 
+                    LEFT JOIN user_items ON task.id = user_items.task_id
                 WHERE task.user_id = '.$user['id'].'
             ;');
             
@@ -42,18 +49,34 @@ class Tasks
                 while ($ar = $db->fetch_assoc()) {
                 
                     $dataTasks[$ar['task_id']]['name'] = $ar['task_name'];
-                    $dataTasks[$ar['task_id']]['color'] = $ar['color'];
-                    $dataTasks[$ar['task_id']]['items'][$ar['item_id']] = [
-                        'item_name' => $ar['item_name'],
-                        'state' => $ar['state'],
-                        'description' => $ar['description'],
-                        'date' => $ar['item_date']
-                    ];
+                    if (isset($ar['color'])) {
+                        $dataTasks[$ar['task_id']]['color'] = $ar['color'];
+                    }
+                    if (isset($ar['item_id'])) {
+                        $dataTasks[$ar['task_id']]['items'][$ar['item_id']] = [
+                            'item_name' => $ar['item_name'],
+                            'state' => $ar['state'],
+                            'description' => $ar['description'],
+                            'date' => $ar['item_date']
+                        ];
+                    }
                 }
             }
         }
 
+        if (!$dataTasks) {
+            $taskId = self::addMyTask();
+            $dataTasks[$taskId]['name'] = 'Мои задачи'; 
+        }
         return $dataTasks;
+    }
+
+    public static function addMyTask() : int
+    {
+       if ($user = User::get()){
+           $taskId = q('INSERT INTO task (task_name, user_id) VALUES ("Мои задачи", '.$user['id'].');');
+           return $taskId;
+       }
     }
 
     public static function delete(int $taskId, string $isClass) : string

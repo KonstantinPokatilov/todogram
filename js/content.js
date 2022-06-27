@@ -13,10 +13,10 @@ const task = {
     counter: {},
 
     firstFetch: function() {
-        fetch('auth.php?direction=getTasks')
+        fetch('api/taskRouter.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-
+                console.log(json)
                 let id = 0
                 const storageProjectId = sessionStorage.getItem('projectId')
                 
@@ -27,20 +27,18 @@ const task = {
     },
 
     butRender: function(id = 0) {
-
+        if (this.getAttribute('select') == '1') { return }
         let projectId = id
 
         if (!id) { projectId = this.getAttribute('projectId') }
-        
-        fetch('auth.php?direction=getTasks')
+        fetch('api/taskRouter.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
                 if (json) { task.renderItems(json, projectId) }
                 else { validError(text) }
             })
 
-        sessionStorage.setItem('projectId', projectId)
-        
+        sessionStorage.setItem('projectId', projectId) 
     },
 
     renderItems: function(tasksJson, projectId) {
@@ -52,14 +50,12 @@ const task = {
         let taskColor = ''
         let projects = ''
         let constDef = ''
+        let projectCount = 0
 
         for (const taskId in tasksJson) {
             const task = tasksJson[taskId]
-            
-            let projectCount = 0
-            
-            if (!task.items['']) { projectCount = Object.keys(task.items).length }    
-            
+            let count = 0
+
             if (projectId) { constDef = projectId } 
             else if (!projectId) {
                 if (task.name === 'Мои задачи') { 
@@ -67,10 +63,10 @@ const task = {
                     document.querySelector('.my-tasks-projects').setAttribute('projectId', taskId)
                 }
             }
-
             if (taskId == constDef) {
 
                 if ('items' in task) {
+                    if (!task.items[''] && task.name === 'Мои задачи') { projectCount = Object.keys(task.items).length } 
                     for (const itemId in task.items) {
                         const item = task.items[itemId]
 
@@ -146,10 +142,10 @@ const task = {
                             items.descriptions[itemId] = itemDescription
                             items.itemValue[itemId] = itemName
                             items.itemDate[itemId] = itemDate
+                            count++
                         }
                     }
                 }
-
                 taskName = task.name
                 if (task.name != 'Мои задачи' && !document.querySelector('.delete-project')) {
                     
@@ -161,33 +157,33 @@ const task = {
 
                 } else if (task.name == 'Мои задачи') {
                     const removeButton = document.querySelector('.delete-project')
-        
                     if (removeButton) { removeButton.remove() }
                 }
 
                 if (task.name != 'Мои задачи') { isCircle = true }
                 taskColor = task.color
-            } 
-
+            } else {
+                for (const itemId in task.items) { count++ }
+            }
             if (task.name != 'Мои задачи') {
                 projects += `<div class="project" but="task-render" projectId="${taskId}">
-                    <div class="project-circle" but="task-chooseColor" style="background: #${task.color}"></div>
+                    <div class="circle-block"><div class="project-circle" style="background: #${task.color}"></div></div>
                     <input type="color" class="input-color" but="task-chooseColor">
                     <div class="proj-text">${task.name}</div>
-                    <div class="counter">${projectCount}</div>
+                    <div class="counter">${count}</div>
                 </div>`
-
+            
             } else if (task.name == 'Мои задачи') {
-                document.querySelector('.task-counter').innerHTML = projectCount
+                document.querySelector('.task-counter').innerHTML = count
                 document.querySelector('.my-tasks-projects').setAttribute('projectId', taskId)
             }
         }
-
-        const circle = `<input type="color" class="input-color" but="task-chooseColor">
-            <div class="project-circle main-circle" style="background: #${taskColor}"></div>`
+        
+        const circle = `<div class="circle-block"><div class="project-circle main-circle" style="background: #${taskColor}"></div></div>
+        <input type="color" class="input-color" but="task-chooseColor">`
 
         const circleBlock = document.querySelector('.my-task-circle')
-        const circleElement = circleBlock.querySelector('.project-circle')
+        const circleElement = circleBlock.querySelector('.circle-block')
         const colorElement = circleBlock.querySelector('.input-color')
         if (circleElement) {
             circleElement.remove()
@@ -204,8 +200,6 @@ const task = {
         
         if (taskName == 'Мои задачи') { taskInput.setAttribute('readonly', '') } 
         else { taskInput.removeAttribute('readonly') }
-
-        document.querySelector('.tasks').setAttribute('projectId', constDef)
 
         document.querySelector('.done-tasks-items').innerHTML = ''
         document.querySelector('.done-tasks-items').insertAdjacentHTML('afterbegin', doneItems)
@@ -231,17 +225,6 @@ const task = {
         calendar.checkDate()
         items.isEmptyTasks()
         items.inputsDispatchEvent()
-        
-    },
-
-    remove: function(parent, projectId, isClass) {
-        
-        parent.remove()
-        document.querySelectorAll('.project').forEach(element => {
-            if (element.getAttribute('projectId') == projectId) { element.remove() }
-        })
-
-        if (projectId) { fetch('auth.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass) }
     },
 
     butAddProject: function() {
@@ -254,7 +237,7 @@ const task = {
         projectTask.innerHTML = `<div class="head-tasks">
                 <div class="my-task-circle">
                     <input type="color" class="input-color" but="task-chooseColor">
-                    <div class="project-circle main-circle"></div>
+                    <div class="circle-block"><div class="project-circle main-circle"></div></div>
                     <input type="text" class="my-tasks-text my-tasks-text-main" placeholder="Новый проект">
                 </div>
                 <div class="add-delete-project">
@@ -277,13 +260,11 @@ const task = {
         const input = { project: 'empty'}
         const inputsJson = JSON.stringify(input)
             
-        fetch('auth.php?direction=addProject'+ '&data=' + inputsJson)
+        fetch('api/taskRouter.php?direction=addProject'+ '&data=' + inputsJson)
             .then(res => res.json())
             .then(json => {
-                document.querySelector('.tasks').setAttribute('projectId', json)
-    
                 const project = document.createElement('div')
-                project.innerHTML = `<div class="project-circle" but="task-chooseColor"></div>
+                project.innerHTML = `<div class="project-circle"></div>
                 <input type="color" class="input-color" but="task-chooseColor">
                 <div class="proj-text"></div>
                 <div class="counter">0</div>`
@@ -302,26 +283,22 @@ const task = {
                 task.addBanner()
 
                 setTimeout(() => { butListener() }, 0)
-                console.log('qqwe')
                 items.updateItems() 
                 items.inputsDispatchEvent()  
                 task.updateProject()
                 butListener()
-
         })      
     },
 
     butRemoveProject: function(projectTask) {
 
-            const projectId =  this.closest('div[projectId]').getAttribute('projectId')
+            const projectId =  document.querySelector('div[select]').getAttribute('projectId')
             let isClass = this.getAttribute('class') 
-            const myTaskId = document.querySelector('.my-tasks-projects').getAttribute('projectid')
     
-            fetch('auth.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
+            fetch('api/taskRouter.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
                 .then(res => res.text())
                 .then(text => {
                     document.querySelector('.my-tasks-projects').dispatchEvent(new Event('click'))
-                    // task.butRender(myTaskId)
                     sessionStorage.clear()
 
                     document.querySelectorAll('.project').forEach(element => {
@@ -366,7 +343,7 @@ const task = {
     updateProject: function() {
         const task = document.querySelector('.my-tasks-text-main')
             task.addEventListener('blur', event => {
-                const taskId = event.target.closest('div[projectId]').getAttribute('projectId')
+                const taskId = document.querySelector('div[select]').getAttribute('projectId')
 
                 if (taskId != 1) {
                     if (items.taskValue != event.target.value) {
@@ -374,7 +351,7 @@ const task = {
                         const taskArr = { id: taskId, value: event.target.value }
                         const inputsJson = JSON.stringify(taskArr)
                         if (items.taskValue) {
-                            fetch('auth.php?direction=updateTask'+ '&data=' + inputsJson)
+                            fetch('api/taskRouter.php?direction=updateTask'+ '&data=' + inputsJson)
                                 .then(res => {
                                     document.querySelectorAll('.proj-text').forEach(element => {
                                         if (element.closest('div[projectId]').getAttribute('projectId') == taskId) {
@@ -404,20 +381,19 @@ const task = {
     },
 
     butChooseColor: function() {
-        const parent = this.closest('div[projectId]')
-        const parentId = parent.getAttribute('projectId')
+        const parent = this.parentElement
+        let parentId = this.parentElement.getAttribute('projectId')
     
         const colorBlock = parent.querySelector('.input-color')
-        colorBlock.click()
-        
         colorBlock.addEventListener('blur', event => {
             if ('choose' in event) { return }
             
             parent.querySelector('.project-circle').style.background = event.target.value
             if (this.parentElement.getAttribute('class') == "project") {
                 document.querySelector('.main-circle').style.background = event.target.value
-            } else  {
+            } else {
                 document.querySelectorAll('.project').forEach(element => {
+                    parentId = document.querySelector('div[select]').getAttribute('projectId')
                     if (element.getAttribute('projectid') == parentId) { element.querySelector('.project-circle').style.background = event.target.value }
                 })
             }
@@ -427,7 +403,7 @@ const task = {
             const colorObj = {projectId: parentId, color: color}
             const colorJSON = JSON.stringify(colorObj)
         
-            fetch('auth.php?direction=updateColor'+ '&data=' + colorJSON) 
+            fetch('api/taskRouter.php?direction=updateColor'+ '&data=' + colorJSON) 
 
             event['choose'] = true
         })
@@ -463,8 +439,7 @@ const items = {
         if (greetings) { greetings.remove() }
         
         const taskItem = document.createElement('div') 
-        taskItem.innerHTML = `<div class="task-item-render" item-id="">
-                <div class="item-flex">
+        taskItem.innerHTML = `<div class="item-flex">
                     <div class="item-text" ischeck="">
                         <div class="inputs-flex">
                             <div class="checkbox-block">
@@ -483,10 +458,11 @@ const items = {
                         <img src="css/img/delete.svg" alt="">
                     </div>
                 </div>
-                <textarea type="textarea" class="textarea-task textarea-task-render invisible" placeholder="Введите краткое описание задачи"></textarea>    
-            </div>`
+                <textarea type="textarea" class="textarea-task textarea-task-render invisible" placeholder="Введите краткое описание задачи"></textarea>`
 
         document.querySelector('.actual-tasks').appendChild(taskItem)
+        taskItem.classList.add('task-item-render')
+        taskItem.setAttribute('item-id', "")
         const inp = taskItem.querySelector('.item-input-render')
         inp.focus()
         items.inputsDispatchEvent()
@@ -505,13 +481,13 @@ const items = {
                 items.butCreate()
                 return
             }
-            const projectId = inp.closest('div[projectId]').getAttribute('projectId')
+            const projectId = document.querySelector('div[select]').getAttribute('projectId')
             
             const addValues = {taskId: projectId, value: event.target.value}
             const inputsJson = JSON.stringify(addValues)
            
             if (addValues.value) {
-                fetch('auth.php?direction=addItems'+ '&data=' + inputsJson) 
+                fetch('api/taskRouter.php?direction=addItems'+ '&data=' + inputsJson) 
                     .then(res => res.json())
                     .then(json => {
                         let taskItem = document.querySelector('.task-item-render')
@@ -538,25 +514,16 @@ const items = {
                             items.showDateHover()                         
                         }
                     })
-
-        const parentId = inp.closest('div[projectId]').getAttribute('projectId')
-        
-        if (parentId == 1) {
-            const taskCounter = document.querySelector('.task-counter')
-            let count = taskCounter.textContent
-            count++
-            taskCounter.innerText = count
-            console.log(taskCounter.innerText)
-        } else {
+            
             document.querySelectorAll('.counter').forEach(element => {
                 const parent = element.closest('div[projectId]')
-                if (parent.getAttribute('projectId') == parentId) {
+                if (parent.getAttribute('projectId') == projectId) {
                     let elCount = element.textContent
                     elCount++
                     element.innerText = elCount
                 }
             })
-        }
+        
             }
             
             inp['check'] = true
@@ -568,7 +535,7 @@ const items = {
         const parent = this.closest('div[item-id]')
         const itemId = parent.getAttribute('item-id')
         
-        const parentTask = this.closest('div[projectId]')
+        const parentTask = document.querySelector('div[select]')
         const parentId = parentTask.getAttribute('projectId')
         
         document.querySelectorAll('.counter').forEach(element => {
@@ -579,10 +546,13 @@ const items = {
                 element.innerText = elCount
             }
         })
-        
+        items.remove(parent, itemId)
+    },
 
-        task.remove(parent, itemId)
-        
+    remove: function(parent, projectId) {
+        const isClass = ''
+        parent.remove()
+        if (projectId) { fetch('api/taskRouter.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass) }
     },
 
     updateItems: function() {
@@ -597,7 +567,7 @@ const items = {
                             const itemArr = { id: itemId, value: event.target.value }
                             const inputsJson = JSON.stringify(itemArr)
                             if (items.itemValue) {
-                                fetch('auth.php?direction=updateItem'+ '&data=' + inputsJson) 
+                                fetch('api/taskRouter.php?direction=updateItem'+ '&data=' + inputsJson) 
                             }                   
                         }
                     }
@@ -621,7 +591,7 @@ const items = {
                                 const addValues = { itemId: id, description: event.target.value }
                                 items.descriptions[id] = event.target.value
                                 const inputsJson = JSON.stringify(addValues)
-                                fetch('auth.php?direction=updateDescription'+ '&data=' + inputsJson)
+                                fetch('api/taskRouter.php?direction=updateDescription'+ '&data=' + inputsJson)
                             }
                         }
                     }
@@ -680,7 +650,7 @@ const items = {
     saveCheck: function(state, value) {
         if (value) {
             const inputsJson = JSON.stringify(value)
-            fetch('auth.php?direction=check' + state + '&data=' + inputsJson)
+            fetch('api/taskRouter.php?direction=check' + state + '&data=' + inputsJson)
         }
     },
 
@@ -696,7 +666,9 @@ const items = {
         
         if (doneTasksBlock) {
             if (doneTasksBlock.childElementCount > 0) {
+                console.log('1')
                 if (actual.childElementCount == 0) {
+                    console.log('2')
                     actual.insertAdjacentHTML('afterbegin', tasksDone)
                 } else if (astronaut) { astronaut.remove() }
             } else if (astronaut) { astronaut.remove() }
@@ -705,8 +677,7 @@ const items = {
 
     updateDate: function(selectDay, fullDate) {
         
-        if (selectDay) {
-            
+        if (selectDay) {    
             const parent = selectDay.closest('[item-id]')
             parent.querySelector('.day-month-item').textContent = calendar.splitDate(fullDate)
             const itemId = parent.getAttribute('item-id')
@@ -717,7 +688,7 @@ const items = {
                     if (key == itemId) {
                         if (items.itemDate[key] != fullDate){ 
                             items.itemDate[itemId] = fullDate
-                            fetch('auth.php?direction=updateDate'+ '&data=' + inputsJson)
+                            fetch('api/taskRouter.php?direction=updateDate'+ '&data=' + inputsJson)
                         }
                     }
                 }

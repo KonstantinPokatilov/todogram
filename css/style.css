@@ -12,7 +12,6 @@ body {
     font-weight: normal;
 }
 
-
 input {
     width: 100%;
     font: inherit;
@@ -54,7 +53,6 @@ main[direction="authForm"] {
     left: 723px;
     top: 498px;
     background: #F1F0F7;
-    
 }
 input {
     outline: none;
@@ -77,7 +75,6 @@ input {
     background: url(img/Vector2.svg) no-repeat;
     background-position-y: 3px;
     padding-left: 30px;
-
 }
 
 main[com="email"] .input-code { display: none; }
@@ -356,7 +353,6 @@ div[but="sendForm"] {
 .create-project-text {
     text-align: center;
     font-size: 20px;
-
 }
 
 .task-zone {
@@ -519,6 +515,7 @@ label[class="label-check"]::before {
     resize: none;
     color: #2F3133;
     overflow: hidden;
+    font: inherit;
 }
 
 .delete-project {

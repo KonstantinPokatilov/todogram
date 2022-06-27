@@ -1,32 +1,10 @@
-<?php require_once 'function.php';
+<?php require_once '/var/www/html/function.php';
 
 if (isset($_REQUEST['direction'])) { $direction = $_REQUEST['direction']; } else { exit('false'); }
 if (isset($_REQUEST['data'])) { $data = json_decode($_REQUEST['data'], true); }
-if (isset($_REQUEST['taskId'])) { $taskId = $_REQUEST['taskId']; }
 if (isset($_REQUEST['isClass'])) { $isClass = $_REQUEST['isClass']; }
 
-if ($direction == 'regForm' && $data) {
-
-    echo User::add($data);
-
-} else if ($direction == 'authForm' && $data) {
-
-    $result = User::auth($data);
-    echo (json_encode($result));
-
-} else if ($direction == 'authForm-email' && $data) {
-
-    echo User::auth($data);
-
-} else if ($direction == 'authForm-code' && $data) {
-
-    echo User::auth($data);
-
-} else if ($direction == 'delete') {
-
-    echo User::delete($direction);
-
-} else if ($direction == 'getTasks') {
+if ($direction == 'getTasks') {
     
     $selectData = Tasks::getTasks();
     echo (json_encode($selectData, JSON_UNESCAPED_UNICODE));
@@ -35,7 +13,7 @@ if ($direction == 'regForm' && $data) {
 
     echo Tasks::delete($data, $isClass);
 
-} else if ($direction == 'checkSelect' || $direction == 'checkUnselect') {  
+} else if ($direction == 'checkSelect' || $direction == 'checkUnselect') {
 
     echo(Tasks::updateCheckbox($data, $direction));
 
