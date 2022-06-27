@@ -43,6 +43,7 @@ const task = {
 
     renderItems: function(tasksJson, projectId) {
         console.log(tasksJson)
+        console.log(projectId)
         let myItems = ''
         let taskName = ''
         let doneItems = ''
