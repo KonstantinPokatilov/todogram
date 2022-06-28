@@ -11,9 +11,9 @@ $main = '<main direction="authForm" com="email">
             <div class="auth-form">
                 <input type="email" name="email" placeholder="Введите ваш корпоративный email" class="auth-input">
                 <input type="text" name="code" placeholder="Введите код" class="auth-input input-code"></input>
-                <div but="sendForm">
+                <div but="auth-sendCode">
                     <img src="css/img/Vector-get.svg" alt="#">
-                    <div class="get-code">Получить код</div>    
+                    <div class="get-code"></div>    
                 </div>
             </div>
             <div class="footer">
@@ -23,6 +23,7 @@ $main = '<main direction="authForm" com="email">
         </main>';
 
 $script = '<script src="/js/main.js"></script>';
+$script .= '<script src="/js/auth.js"></script>';
 
 if (User::auth() == 'true') { require_once 'content.php'; }
 

@@ -5,7 +5,13 @@ document.addEventListener('keyup', event => {
 })
 
 function butUserExit() {
-    cookie.set('deleteCookieAuth')
+    fetch('/api/user.php?direction=exit')
+        .then(res => res.text())
+        .then(text => {
+            if (text) {
+                location.reload()
+            }
+        })
 }
 
 const task = {
@@ -13,45 +19,41 @@ const task = {
     counter: {},
 
     firstFetch: function() {
-        fetch('api/taskRouter.php?direction=getTasks')
+        fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-                console.log(json)
                 let id = 0
                 const storageProjectId = sessionStorage.getItem('projectId')
-                
+         
                 if (storageProjectId) { id = storageProjectId }
 
-                if (json) { task.renderItems(json, id) }       
+                if (json) { task.parsingItems(json, id) }       
             })
     },
 
     butRender: function(id = 0) {
-        if (this.getAttribute('select') == '1') { return }
+        if (this.getAttribute('select')) { return }
         let projectId = id
 
         if (!id) { projectId = this.getAttribute('projectId') }
-        fetch('api/taskRouter.php?direction=getTasks')
+        fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-                if (json) { task.renderItems(json, projectId) }
+                if (json) { task.parsingItems(json, projectId) }
                 else { validError(text) }
             })
-
         sessionStorage.setItem('projectId', projectId) 
     },
 
-    renderItems: function(tasksJson, projectId) {
-        console.log(tasksJson)
-        console.log(projectId)
+    parsingItems: function(tasksJson, projectId) {
+        
         let myItems = ''
         let taskName = ''
         let doneItems = ''
-        let isCircle = false
         let taskColor = ''
         let projects = ''
         let constDef = ''
-        let projectCount = 0
+        let isCircle = false
 
         for (const taskId in tasksJson) {
             const task = tasksJson[taskId]
@@ -65,12 +67,10 @@ const task = {
                 }
             }
             if (taskId == constDef) {
-
                 if ('items' in task) {
-                    if (!task.items[''] && task.name === 'Мои задачи') { projectCount = Object.keys(task.items).length } 
                     for (const itemId in task.items) {
+                        
                         const item = task.items[itemId]
-
                         let itemName = ''
                         let itemState = ''
                         let itemDescription = ''
@@ -82,9 +82,7 @@ const task = {
                         if ('date' in item && item.date) { itemDate = item.date }
 
                         let splitDate = calendar.splitDate(itemDate)
-                        if (!splitDate) {
-                            splitDate = ''
-                        }
+                        if (!splitDate) { splitDate = '' }
 
                         if (itemId != "") {
                             if (itemState == 0) {
@@ -132,12 +130,12 @@ const task = {
                                         </div> 
                                     </div>    
                                 </div>
-                                <div class="delete-point" but="items-removeItem">
-                                    <img src="css/img/delete.svg" alt="">
-                                </div>
-                                </div> 
-                                <textarea type="textarea" class="textarea-task invisible" placeholder="Введите краткое описание задачи">${itemDescription}</textarea>   
-                            </div>`
+                                    <div class="delete-point" but="items-removeItem">
+                                        <img src="css/img/delete.svg" alt="">
+                                    </div>
+                                    </div> 
+                                    <textarea type="textarea" class="textarea-task invisible" placeholder="Введите краткое описание задачи">${itemDescription}</textarea>   
+                                </div>`
                             }
 
                             items.descriptions[itemId] = itemDescription
@@ -160,12 +158,11 @@ const task = {
                     const removeButton = document.querySelector('.delete-project')
                     if (removeButton) { removeButton.remove() }
                 }
-
                 if (task.name != 'Мои задачи') { isCircle = true }
-                taskColor = task.color
-            } else {
-                for (const itemId in task.items) { count++ }
-            }
+                    taskColor = task.color
+                } else {
+                    for (const itemId in task.items) { count++ }
+                }
             if (task.name != 'Мои задачи') {
                 projects += `<div class="project" but="task-render" projectId="${taskId}">
                     <div class="circle-block"><div class="project-circle" style="background: #${task.color}"></div></div>
@@ -179,10 +176,14 @@ const task = {
                 document.querySelector('.my-tasks-projects').setAttribute('projectId', taskId)
             }
         }
-        
         const circle = `<div class="circle-block"><div class="project-circle main-circle" style="background: #${taskColor}"></div></div>
         <input type="color" class="input-color" but="task-chooseColor">`
 
+        task.renderItems(isCircle, circle, myItems, taskName, doneItems, projects, constDef)
+    },
+
+    renderItems: function(isCircle, circle, myItems, taskName, doneItems, projects, constDef) {
+       
         const circleBlock = document.querySelector('.my-task-circle')
         const circleElement = circleBlock.querySelector('.circle-block')
         const colorElement = circleBlock.querySelector('.input-color')
@@ -190,7 +191,6 @@ const task = {
             circleElement.remove()
             colorElement.remove()
         }
-
         if (isCircle) { circleBlock.insertAdjacentHTML('afterbegin', circle) } 
 
         document.querySelector('.actual-tasks').innerHTML = ''
@@ -213,11 +213,9 @@ const task = {
         if (select) { select.removeAttribute('select') }
 
         document.querySelectorAll('[but="task-render"]').forEach(element => {
-            if (element.getAttribute('projectid') == constDef) { element.setAttribute('select', 1) }
+            if (element.getAttribute('projectid') == constDef) { element.setAttribute('select', '') }
         })
-
         task.updateProject()
-        butListener()
         items.isCheck()
         items.updateItems()
         items.updateDate()
@@ -225,11 +223,11 @@ const task = {
         items.showDateHover()
         calendar.checkDate()
         items.isEmptyTasks()
-        items.inputsDispatchEvent()
+        butListener()
+        inputsEventListener()
     },
 
     butAddProject: function() {
-
         const taskZone = document.querySelector('.task-zone')
 
         if (taskZone) { taskZone.remove() }
@@ -255,13 +253,12 @@ const task = {
         document.querySelector('.tasks').insertAdjacentElement('afterbegin', projectTask)
 
         const projectName = projectTask.querySelector('input[class="my-tasks-text my-tasks-text-main"]')
-
         projectName.focus()
 
         const input = { project: 'empty'}
         const inputsJson = JSON.stringify(input)
             
-        fetch('api/taskRouter.php?direction=addProject'+ '&data=' + inputsJson)
+        fetch('/api/task.php?direction=addProject'+ '&data=' + inputsJson)
             .then(res => res.json())
             .then(json => {
                 const project = document.createElement('div')
@@ -277,26 +274,26 @@ const task = {
                 document.querySelector('.all-projects').appendChild(project)
 
                 const select = document.querySelector('[select]')
-                
+
                 if (select) { select.removeAttribute('select') }
-                project.setAttribute('select', '1')
+                project.setAttribute('select', '')
+                
+                sessionStorage.setItem('projectId', json)
             
                 task.addBanner()
-
                 setTimeout(() => { butListener() }, 0)
-                items.updateItems() 
-                items.inputsDispatchEvent()  
+                items.updateItems()  
                 task.updateProject()
+                inputsEventListener()
                 butListener()
         })      
     },
 
     butRemoveProject: function(projectTask) {
-
             const projectId =  document.querySelector('div[select]').getAttribute('projectId')
             let isClass = this.getAttribute('class') 
     
-            fetch('api/taskRouter.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
+            fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
                 .then(res => res.text())
                 .then(text => {
                     document.querySelector('.my-tasks-projects').dispatchEvent(new Event('click'))
@@ -305,16 +302,11 @@ const task = {
                     document.querySelectorAll('.project').forEach(element => {
                         if (element.getAttribute('projectId') == projectId) { element.remove() }
                     })
-                })
-        
-            
-             
+                })      
     },
 
-    addBanner: function() {
-        
+    addBanner: function() { 
         const headTask = document.querySelector('.head-tasks')
-
         const projectTaskLogo = `<div class="task-zone">
         <div class="actual-tasks">
             <div class="greetings">
@@ -352,7 +344,7 @@ const task = {
                         const taskArr = { id: taskId, value: event.target.value }
                         const inputsJson = JSON.stringify(taskArr)
                         if (items.taskValue) {
-                            fetch('api/taskRouter.php?direction=updateTask'+ '&data=' + inputsJson)
+                            fetch('/api/task.php?direction=updateTask'+ '&data=' + inputsJson)
                                 .then(res => {
                                     document.querySelectorAll('.proj-text').forEach(element => {
                                         if (element.closest('div[projectId]').getAttribute('projectId') == taskId) {
@@ -366,8 +358,7 @@ const task = {
             }) 
     },
 
-    butSwitch: function() {
-          
+    butSwitch: function() {  
         if (this.parentElement == document.querySelector('.done-tasks')) {
             this.querySelector('.done-task-svg').classList.toggle('rotate')
             document.querySelector('.done-tasks-items').classList.toggle('invisible')
@@ -398,13 +389,11 @@ const task = {
                     if (element.getAttribute('projectid') == parentId) { element.querySelector('.project-circle').style.background = event.target.value }
                 })
             }
-
             const color = event.target.value.slice(1)
-
             const colorObj = {projectId: parentId, color: color}
             const colorJSON = JSON.stringify(colorObj)
         
-            fetch('api/taskRouter.php?direction=updateColor'+ '&data=' + colorJSON) 
+            fetch('/api/task.php?direction=updateColor'+ '&data=' + colorJSON) 
 
             event['choose'] = true
         })
@@ -416,7 +405,6 @@ const task = {
 task.firstFetch()
 
 const items = {
-
     taskValue: '',
     itemValue: { },
     itemDate: { },
@@ -434,9 +422,7 @@ const items = {
                 emptyValue = true 
             }
         })
-
         if (emptyValue) { return }
-
         if (greetings) { greetings.remove() }
         
         const taskItem = document.createElement('div') 
@@ -466,11 +452,11 @@ const items = {
         taskItem.setAttribute('item-id', "")
         const inp = taskItem.querySelector('.item-input-render')
         inp.focus()
-        items.inputsDispatchEvent()
         items.save(inp)   
         items.isCheck()
         items.updateItems()
         items.isEmptyTasks()    
+        inputsEventListener()
         butListener()
     },  
 
@@ -488,7 +474,7 @@ const items = {
             const inputsJson = JSON.stringify(addValues)
            
             if (addValues.value) {
-                fetch('api/taskRouter.php?direction=addItems'+ '&data=' + inputsJson) 
+                fetch('/api/task.php?direction=addItems'+ '&data=' + inputsJson) 
                     .then(res => res.json())
                     .then(json => {
                         let taskItem = document.querySelector('.task-item-render')
@@ -515,45 +501,44 @@ const items = {
                             items.showDateHover()                         
                         }
                     })
-            
-            document.querySelectorAll('.counter').forEach(element => {
-                const parent = element.closest('div[projectId]')
-                if (parent.getAttribute('projectId') == projectId) {
-                    let elCount = element.textContent
-                    elCount++
-                    element.innerText = elCount
-                }
-            })
-        
-            }
-            
+                document.querySelectorAll('.counter').forEach(element => {
+                    const parent = element.closest('div[projectId]')
+                    if (parent.getAttribute('projectId') == projectId) {
+                        let elCount = element.textContent
+                        elCount++
+                        element.innerText = elCount
+                    }
+                })
+            }   
             inp['check'] = true
-        })
-        
+        })   
     },
 
     butRemoveItem: function() {  
         const parent = this.closest('div[item-id]')
         const itemId = parent.getAttribute('item-id')
-        
+
         const parentTask = document.querySelector('div[select]')
         const parentId = parentTask.getAttribute('projectId')
-        
-        document.querySelectorAll('.counter').forEach(element => {
-
-            if (element.closest('div[projectId]').getAttribute('projectid') == parentId) {
-                let elCount = element.textContent
-                elCount--
-                element.innerText = elCount
-            }
-        })
-        items.remove(parent, itemId)
+        items.remove(parent, itemId, parentId)
     },
 
-    remove: function(parent, projectId) {
+    remove: function(parent, projectId, parentId) {
         const isClass = ''
         parent.remove()
-        if (projectId) { fetch('api/taskRouter.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass) }
+        if (projectId) { 
+            fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
+                .then(res => res.text())
+                .then(text => {
+                    document.querySelectorAll('.counter').forEach(element => {
+                        if (element.closest('div[projectid]').getAttribute('projectid') == parentId) {
+                            let elCount = element.textContent
+                            elCount--
+                            element.innerText = elCount
+                        }
+                    })
+                })
+        }
     },
 
     updateItems: function() {
@@ -568,7 +553,7 @@ const items = {
                             const itemArr = { id: itemId, value: event.target.value }
                             const inputsJson = JSON.stringify(itemArr)
                             if (items.itemValue) {
-                                fetch('api/taskRouter.php?direction=updateItem'+ '&data=' + inputsJson) 
+                                fetch('/api/task.php?direction=updateItem'+ '&data=' + inputsJson) 
                             }                   
                         }
                     }
@@ -592,7 +577,7 @@ const items = {
                                 const addValues = { itemId: id, description: event.target.value }
                                 items.descriptions[id] = event.target.value
                                 const inputsJson = JSON.stringify(addValues)
-                                fetch('api/taskRouter.php?direction=updateDescription'+ '&data=' + inputsJson)
+                                fetch('/api/task.php?direction=updateDescription'+ '&data=' + inputsJson)
                             }
                         }
                     }
@@ -635,11 +620,8 @@ const items = {
                     items.isEmptyTasks()
                 }
             })
-    
-            element['checkListener'] = true
-            
+            element['checkListener'] = true   
         })
-
         document.querySelectorAll('div[ischeck]').forEach(element => {
             if (element.getAttribute('ischeck') == 1) {
                 element.lastElementChild.classList.add('done-point')
@@ -651,7 +633,7 @@ const items = {
     saveCheck: function(state, value) {
         if (value) {
             const inputsJson = JSON.stringify(value)
-            fetch('api/taskRouter.php?direction=check' + state + '&data=' + inputsJson)
+            fetch('/api/task.php?direction=check' + state + '&data=' + inputsJson)
         }
     },
 
@@ -689,7 +671,7 @@ const items = {
                     if (key == itemId) {
                         if (items.itemDate[key] != fullDate){ 
                             items.itemDate[itemId] = fullDate
-                            fetch('api/taskRouter.php?direction=updateDate'+ '&data=' + inputsJson)
+                            fetch('/api/task.php?direction=updateDate'+ '&data=' + inputsJson)
                         }
                     }
                 }
@@ -742,14 +724,6 @@ const items = {
             })
         })
     },
-
-    inputsDispatchEvent: function() {
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('keyup', event => {
-                if (event.key == 'Enter') { input.dispatchEvent(new Event('blur')) }
-            })
-        })
-    }
 }
 
 const calendar = {
@@ -814,12 +788,9 @@ const calendar = {
         if (thisY) { calendar.thisYear = thisY }
         else { calendar.thisYear = new Date().getFullYear() }
     
-        let days = ''
-    
         const firstDayInWeek = new Date(calendar.thisYear, calendar.thisMonth, 1).getDay() - 1 // номер дня недели первого дня месяца минус 1
-    
         const prevMonth = calendar.getDaysOfMonth(calendar.thisYear, calendar.thisMonth-1) // количество дней в предыдущем месяце
-        
+        let days = ''
         let firstPoint = ''
     
         if (firstDayInWeek == -1) {
@@ -864,7 +835,6 @@ const calendar = {
             if (calendar.thisMonth == 11) { calendar.thisYear = calendar.thisYear + 1 }
             calendar.calendarRender(calendar.thisMonth + 1, calendar.thisYear)     
         })
-        
         document.querySelector('.prev').addEventListener('click', event => {
             if (calendar.thisMonth == 0) { calendar.thisYear = calendar.thisYear - 1 }
             calendar.calendarRender(calendar.thisMonth - 1, calendar.thisYear)
@@ -934,7 +904,6 @@ const calendar = {
                 } else { clearDate.push(itemId) }
             }
         }
-        
         items.timestamp(overDate, clearDate)
     },
 }

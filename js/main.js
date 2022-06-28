@@ -2,21 +2,22 @@
 
 const inputs = {}
 
-document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('keyup', event => {
-        if (event.key == 'Enter') {
-            butSendForm()
-        }
-        if (event.ctrlKey && event.key == 'z') {
-            const name = document.querySelector('[name="email"]')
-            if (name) {
-                name.focus()
-                name.value = 'PokatilovK@vlfarm.ru'
+function inputsEventListener() {
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('keyup', event => {
+            if (event.key == 'Enter') {
+                input.dispatchEvent(new Event('blur'))
             }
-            butSendForm()
-        }
+            if (event.ctrlKey && event.key == 'z') {
+                const name = document.querySelector('[name="email"]')
+                if (name) {
+                    name.focus()
+                    name.value = 'PokatilovK@vlfarm.ru'
+                }
+            }
+        })
     })
-})
+}
 
 function butListener() {
     document.querySelectorAll('[but]').forEach(but => {
@@ -45,35 +46,6 @@ function butListener() {
 
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-function butSendForm() {
-    const direction = document.querySelector('main').getAttribute('direction')
-    const com = document.querySelector('main').getAttribute('com')
-
-    const data = {
-        email: document.querySelector('.auth-input').value
-    }
-
-    if (direction == 'authForm' && com == 'code') {
-        data['code'] = encodeURIComponent(document.querySelector('.input-code').value)
-    }
-    if (!data['email']) { 
-        validation('Введите email') 
-        return
-    }
-
-    fetch('api/userRouter.php?direction=' + direction + '-' + com + '&data=' + JSON.stringify(data))
-        .then(res => res.text())
-        .then(text => {
-            if (com == 'email' && text == 'true') { 
-                document.querySelector('main').setAttribute('com', 'code') 
-            }
-            else if (com == 'code' && text == 'true') { location.reload() }
-            else {console.log(text)
-                validation(text)
-            }
-        })
 }
 
 function validation(text) {
@@ -194,48 +166,5 @@ const popUp = {
     },
 }
 
-const cookie = {
-    set: function(name, value, options = {}) {
-        let deleteCookieAuth = false
-        if (name == 'deleteCookieAuth') {
-            deleteCookieAuth = true
-    
-            name = 'auth'
-            value = ''
-            options = {'max-age': -1}
-        }
-    
-        options = {
-            path: '/',
-            ...options
-        };
-      
-        if (options.expires instanceof Date) {
-            options.expires = options.expires.toUTCString();
-        }
-      
-        let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
-      
-        for (let optionKey in options) {
-            updatedCookie += "; " + optionKey;
-            let optionValue = options[optionKey];
-    
-            if (optionValue !== true) {
-                updatedCookie += "=" + optionValue;
-            }
-        }
-    
-        document.cookie = updatedCookie;
-    
-        if (deleteCookieAuth) { location.reload() }
-    },
-    get: function(name) {
-        let matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-        ));
-    
-        return matches ? decodeURIComponent(matches[1]) : undefined;
-    }
-}
-
 butListener()
+inputsEventListener()

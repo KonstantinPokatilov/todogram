@@ -4,6 +4,7 @@ body {
     margin: 0;
     font: 16px/22px 'Nunito-regular';
     overflow: hidden;
+    cursor: default;
 }
 @font-face {
     font-family: 'Nunito-regular';
@@ -83,7 +84,9 @@ main[com="email"] .input-code { display: none; }
     margin-top: 0px;
 }
 
-div[but="sendForm"] {
+/*div[but="sendForm"] {*/
+div[but="auth-sendCode"],
+div[but="auth-checkCode"] {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
@@ -101,6 +104,9 @@ div[but="sendForm"] {
     cursor: pointer;
     margin-bottom: 30px;
 }
+
+div[but="auth-sendCode"] .get-code:before { content: "Отправить код"; }
+div[but="auth-checkCode"] .get-code:before { content: "Проверить код"; }
 
 .footer {
     font-size: 20px;
@@ -803,4 +809,7 @@ div[but="userExit"] {
     right: 3%;
     top: 3%;
     cursor: pointer;
+}
+input[readonly] {
+    cursor: default;
 }

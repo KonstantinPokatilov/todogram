@@ -1,5 +1,5 @@
 <?php
-$user = User::get();
+if ($user = User::get()) { $email = $user['email']; }
 
 $main = '<div class="header">
         <div class="logo-header" but="task-reloadPage">
@@ -7,7 +7,7 @@ $main = '<div class="header">
             <img src="css/img/todogram.svg" class="todogram-logo" alt="">
         </div>
         <div class="email-exit">
-            <div class="user-email">'.$user['email'].'</div>
+            <div class="user-email">'.$email.'</div>
             <div class="exit" but="userExit">   
                 <img src="css/img/exit-icon.svg" alt="" class="icon-exit">
             </div>

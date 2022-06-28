@@ -5,15 +5,15 @@ if (isset($_REQUEST['data'])) { $data = json_decode($_REQUEST['data'], true); }
 
 if ($direction == 'authForm-email' && $data) {
 
-    echo User::auth($data);
+    if (isset($data['email'])) { echo User::sendAuthCode($data['email']); }
 
 } else if ($direction == 'authForm-code' && $data) {
 
-    echo User::auth($data);
+    if (isset($data['email']) && isset($data['code'])) { echo User::checkAuthCode($data); }
 
-} else if ($direction == 'delete') {
+} else if ($direction == 'exit') {
 
-    echo User::delete($direction);
+    echo User::exit();
 
 } else {
     print_r($data);

@@ -19,42 +19,41 @@ class User
         return [];
     }
 
+    public static function sendAuthCode(string $email) : string
+    {   
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { return 'Некорректный email'; }
+
+        if ($user = self::get(['email' => $email])) {
+            return self::sendEmail($email, 'auth to todogram', self::codeCipher($email));
+        }
+        return 'Нет доступа';
+    }
+
+    public static function checkAuthCode(array $data) : string
+    {
+        if (!isset($data['email']) || !isset($data['code'])) { return 'Введены неверные данные'; }
+
+        if ($user = self::get(['email' => $data['email']])) {
+            $decryptData = self::codeCipher($data['code'], 'decrypt');
+
+            if ($decryptData['email'] == $user['email']  && $_SERVER['REMOTE_ADDR'] == $decryptData['ip']) {
+                self::cookieCipher($user, 'write');
+
+                return 'true';
+            }
+        }
+
+        return 'false';
+    }
+
+    public static function sendEmail(string $to, string $subject, string $message) : bool
+    {
+        return mb_send_mail($to, $subject, $message);
+    }
+
     public static function auth(array $data = []) 
     {
         if (self::get()) { return 'true'; }
-
-        if (isset($data['email']) && isset($data['code'])) {
-            $email = $data['email'];
-            $code = $data['code'];
-        }
-
-        if (!isset($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return 'Неправильный email'; }
-
-        if (isset($email)) {
-            if (isset($code)) {
-                $user = self::get($data);
-
-                $decryptData = self::codeCipher($code, 'decrypt');
-                if ($decryptData['email'] == $user['email']) {
-                    if (time() - $decryptData['time'] <= 900) {
-                        
-                        self::cookieCipher($decryptData, 'write');
-    
-                        return 'true';
-                    } else {
-                        return 'Срок действия кода истёк';
-                    }
-                }
-                return 'Неверный код';
-            }
-            return 'Неправильный email';
-        
-        } else if (self::get($data)) {
-            self::sendEmail($data['email'], 'auth to todogram', self::codeCipher($data['email']));
-
-            return 'true';
-        }
-        return 'Нет доступа';
     }
 
     public static function codeCipher(string $text, string $command = 'encrypt') 
@@ -74,13 +73,14 @@ class User
         }
     }
 
-    public static function delete($direction, $taskId)
+    public static function exit() : bool
     {
-        if ($user = self::get()) {
-                $result = q('DELETE user FROM user WHERE id = "'.$user['id'].'";');
-
-                setcookie('auth', ''); 
+        if (isset($_COOKIE['auth'])) {
+            unset($_COOKIE['auth']);
+            setcookie('auth', '', -1, '/');
+            return true;
         }
+        return false;
     }
 
     private static function cookieCipher(array $data = [], string $state = 'read') : array
@@ -88,7 +88,7 @@ class User
         if ($state == 'write' && $data) {
             $cookie_cipher = openssl_encrypt($data['email'], 'aes-128-cbc', self::$ssl_pass, 0, self::$ssl_pass);
     
-            if (setcookie('auth', $cookie_cipher)) {
+            if (setcookie('auth', $cookie_cipher, time() + 60 * 60 * 24 * 365, '/', '', '', true)) {
                 return [true];
             }
         } else if ($state == 'read' && isset($_COOKIE['auth'])) {
@@ -102,11 +102,6 @@ class User
         }
 
         return [];
-    }
-
-    public static function sendEmail(string $to, string $subject, string $message) : bool
-    {
-        return mb_send_mail($to, $subject, $message);
     }
 }
 
