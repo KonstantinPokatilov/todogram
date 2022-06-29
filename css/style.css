@@ -3,9 +3,9 @@
 body {
     margin: 0;
     font: 16px/22px 'Nunito-regular';
-    overflow: hidden;
     cursor: default;
 }
+
 @font-face {
     font-family: 'Nunito-regular';
     src: url(fonts/static/Nunito-Regular.ttf);
@@ -84,7 +84,6 @@ main[com="email"] .input-code { display: none; }
     margin-top: 0px;
 }
 
-/*div[but="sendForm"] {*/
 div[but="auth-sendCode"],
 div[but="auth-checkCode"] {
     box-sizing: border-box;
@@ -812,4 +811,45 @@ div[but="userExit"] {
 }
 input[readonly] {
     cursor: default;
+}
+
+.move-in-project {
+    width: 40px;
+    height: 32px;
+    background: white center;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.small-projects {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 2px;
+    padding: 15px;
+    top: 45px;
+    right: 9px;
+    box-shadow: 0px 6px 15px -10px;
+    align-items: flex-start;
+    z-index: 1;
+}
+
+.one-small-project {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 5px;
+    width: 100%;
+}
+.one-small-project:hover {
+    background: #EEEEEE;
+}
+
+.small-circle {
+    margin-right: 5px;
 }

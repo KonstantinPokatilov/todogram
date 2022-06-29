@@ -132,4 +132,12 @@ class Tasks
         } 
         return 'true';
     }
+
+    public static function toggleItem(array $data) : bool
+    {
+        $result = q('UPDATE user_items SET task_id = "'.$data['projectId'].'" WHERE id = "'.$data['itemId'].'";');
+        if ($result) {
+            return true;
+        }
+    }
 }

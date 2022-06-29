@@ -27,7 +27,7 @@ const task = {
          
                 if (storageProjectId) { id = storageProjectId }
 
-                if (json) { task.parsingItems(json, id) }       
+                if (json) { task.parsingTasks(json, id) }       
             })
     },
 
@@ -39,13 +39,13 @@ const task = {
         fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-                if (json) { task.parsingItems(json, projectId) }
+                if (json) { task.parsingTasks(json, projectId) }
                 else { validError(text) }
             })
         sessionStorage.setItem('projectId', projectId) 
     },
 
-    parsingItems: function(tasksJson, projectId) {
+    parsingTasks: function(tasksJson, projectId) {
         
         let myItems = ''
         let taskName = ''
@@ -78,6 +78,7 @@ const task = {
                         
                         if ('description' in item && item.description) { itemDescription = item.description }
                         if ('item_name' in item && item.item_name) { itemName = item.item_name }
+                        
                         if ('state' in item && item.state) { itemState = item.state }
                         if ('date' in item && item.date) { itemDate = item.date }
 
@@ -104,6 +105,7 @@ const task = {
                                             <div class="datetime-block" but="calendar-render"></div> 
                                         </div> 
                                     </div>
+                                    <div class="move-in-project" but="items-itemMove">E</div>
                                     <div class="delete-point" but="items-removeItem">
                                         <img src="css/img/delete.svg" alt="">
                                     </div>
@@ -130,6 +132,7 @@ const task = {
                                         </div> 
                                     </div>    
                                 </div>
+                                    <div class="move-in-project" but="items-itemMove">E</div>
                                     <div class="delete-point" but="items-removeItem">
                                         <img src="css/img/delete.svg" alt="">
                                     </div>
@@ -141,10 +144,11 @@ const task = {
                             items.descriptions[itemId] = itemDescription
                             items.itemValue[itemId] = itemName
                             items.itemDate[itemId] = itemDate
-                            count++
+                            if (itemState == 0) { count++ }
                         }
                     }
                 }
+                
                 taskName = task.name
                 if (task.name != 'Мои задачи' && !document.querySelector('.delete-project')) {
                     
@@ -161,7 +165,7 @@ const task = {
                 if (task.name != 'Мои задачи') { isCircle = true }
                     taskColor = task.color
                 } else {
-                    for (const itemId in task.items) { count++ }
+                    for (const itemId in task.items) if (task.items[itemId].state == 0) { count++ }
                 }
             if (task.name != 'Мои задачи') {
                 projects += `<div class="project" but="task-render" projectId="${taskId}">
@@ -255,7 +259,7 @@ const task = {
         const projectName = projectTask.querySelector('input[class="my-tasks-text my-tasks-text-main"]')
         projectName.focus()
 
-        const input = { project: 'empty'}
+        const input = { project: 'Новый проект'}
         const inputsJson = JSON.stringify(input)
             
         fetch('/api/task.php?direction=addProject'+ '&data=' + inputsJson)
@@ -399,6 +403,30 @@ const task = {
         })
     },
 
+    counter: function(symbol, projectId) {
+        const project = document.querySelector('div[select]') 
+        const elCount = project.querySelector('.counter')
+        let numCount = elCount.textContent
+
+        if (symbol == 'plus') {
+            numCount++
+            elCount.innerText = numCount
+        } else if (symbol == 'toggle') {
+            task.counter('minus')
+            document.querySelectorAll('.counter').forEach(element => {
+                if (element.closest('div[projectid]').getAttribute('projectid') == projectId) {
+                    let numToggleCount = element.textContent
+                    numToggleCount++
+                    element.innerText = numToggleCount 
+                }
+            })
+            
+        } else {
+            numCount--
+            elCount.innerText = numCount
+        }
+    },
+
     butReloadPage: function() { location.reload() }
 }
 
@@ -435,12 +463,13 @@ const items = {
                             </div>
                             <input type="text" value="" class="item-input item-input-render" placeholder="Введите заголовок задачи">
                         </div>
-                    </div>
-                    <div class="flex-svg-date">
-                        <div class="svg-down" but="task-switch">
-                            <img src="css/img/project-down.svg" class="done-description-svg done-description-item" alt="">
+                        <div class="flex-svg-date">
+                            <div class="svg-down" but="task-switch">
+                                <img src="css/img/project-down.svg" class="done-description-svg done-description-item" alt="">
+                            </div>
                         </div>
                     </div>
+                    <div class="move-in-project" but="items-itemMove">E</div>
                     <div class="delete-point" but="items-removeItem">
                         <img src="css/img/delete.svg" alt="">
                     </div>
@@ -482,6 +511,7 @@ const items = {
                         const dateBlock = `<div class="day-month-item"></div><div class="datetime-block" but="calendar-render"></div> `
                         if (taskItem) {
                             taskItem.querySelector('.flex-svg-date').insertAdjacentHTML('beforeend', dateBlock)
+                        
                             taskItem.setAttribute('item-id', json)
                             taskItem.querySelector('.task-checkbox').setAttribute('id', `check${json}`)
                             taskItem.querySelector('.label-check').setAttribute('for', `check${json}`)
@@ -501,14 +531,7 @@ const items = {
                             items.showDateHover()                         
                         }
                     })
-                document.querySelectorAll('.counter').forEach(element => {
-                    const parent = element.closest('div[projectId]')
-                    if (parent.getAttribute('projectId') == projectId) {
-                        let elCount = element.textContent
-                        elCount++
-                        element.innerText = elCount
-                    }
-                })
+                task.counter('plus')
             }   
             inp['check'] = true
         })   
@@ -519,24 +542,19 @@ const items = {
         const itemId = parent.getAttribute('item-id')
 
         const parentTask = document.querySelector('div[select]')
-        const parentId = parentTask.getAttribute('projectId')
-        items.remove(parent, itemId, parentId)
+        items.remove(parent, itemId)
     },
 
-    remove: function(parent, projectId, parentId) {
+    remove: function(parent, projectId, ) {
         const isClass = ''
-        parent.remove()
         if (projectId) { 
             fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
                 .then(res => res.text())
                 .then(text => {
-                    document.querySelectorAll('.counter').forEach(element => {
-                        if (element.closest('div[projectid]').getAttribute('projectid') == parentId) {
-                            let elCount = element.textContent
-                            elCount--
-                            element.innerText = elCount
-                        }
-                    })
+                    if (parent.parentElement == document.querySelector('.actual-tasks')) {
+                        task.counter('minus')
+                    }
+                    parent.remove()
                 })
         }
     },
@@ -596,23 +614,22 @@ const items = {
                 const checkParent = element.closest('div[item-id]')
                 const itemId = checkParent.getAttribute('item-id')
                 const checkInput = checkParent.querySelector('.item-input')
-                
-  
+        
                 if (element.checked) {
-    
                     checkParent.classList.add('task-done-item') 
                     checkInput.classList.add('item-done-text')
                     const before = document.querySelector('.done-tasks-items')
                     before.insertAdjacentElement('afterbegin', checkParent)
 
-                    items.saveCheck('Select', itemId)
+                    task.counter('minus')
                     items.isEmptyTasks()     
+                    items.saveCheck('Select', itemId)
                 } else { 
+                    task.counter('plus')
                     items.saveCheck('Unselect', itemId)
                     
                     checkParent.classList.remove('task-done-item')
                     checkInput.classList.remove('item-done-text')
-
                     actual.insertAdjacentElement('beforeend', checkParent)
                     items.showDateHover()
                     calendar.checkDate()
@@ -649,9 +666,7 @@ const items = {
         
         if (doneTasksBlock) {
             if (doneTasksBlock.childElementCount > 0) {
-                console.log('1')
                 if (actual.childElementCount == 0) {
-                    console.log('2')
                     actual.insertAdjacentHTML('afterbegin', tasksDone)
                 } else if (astronaut) { astronaut.remove() }
             } else if (astronaut) { astronaut.remove() }
@@ -724,6 +739,48 @@ const items = {
             })
         })
     },
+
+    butItemMove: function() {
+        let projects = ''
+        if (document.querySelector('.small-projects')) { document.querySelector('.small-projects').remove() } 
+        else {
+            fetch('/api/task.php?direction=getTasks')
+            .then(res => res.json())
+            .then(json => {
+                if (json) { 
+                    for (const taskId in json) {
+                    const task = json[taskId]
+                        projects += `<div  class="one-small-project" projectId="${taskId}" but="items-toggleItem">
+                                        <div class="project-circle small-circle" style="background: #${task.color}"></div>
+                                        <div>${task.name}</div>
+                                    </div>`
+                    }
+                    const parentBlock = this.closest('div[item-id]')
+                    let projectsBlock = document.createElement('div')
+                    projectsBlock.innerHTML = projects
+    
+                    projectsBlock.classList.add('small-projects')
+                    parentBlock.insertAdjacentElement('beforeend', projectsBlock)
+                    butListener()  
+                }
+            })
+        } 
+    },
+
+    butToggleItem: function() {
+        const projectId = this.getAttribute('projectid')
+        if (projectId == document.querySelector('div[select]').getAttribute('projectid')) { 
+            document.querySelector('.small-projects').remove()
+            return 
+        }
+        const parentItem = this.closest('div[item-id]')
+        const itemId = parentItem.getAttribute('item-id')
+        fetch('/api/task.php?direction=toggleItem&data=' + JSON.stringify({projectId: projectId, itemId: itemId}))
+        parentItem.remove()
+        if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
+            task.counter('toggle', projectId)  
+        } 
+    }
 }
 
 const calendar = {
@@ -850,10 +907,11 @@ const calendar = {
         else if (this.classList.contains('next-month')) { month = calendar.thisMonth + 2 }
         else { month = calendar.thisMonth + 1 }
         let year = calendar.thisYear
+        console.log(calendar.thisYear)
 
         const fullDate = year + '-' + month + '-' + day
         
-        if (day >= new Date().getDate() && month == new Date().getMonth() + 1 || month > new Date().getMonth() + 1 || year > new Date().getFullYear()) {
+        if (day >= new Date().getDate() && month == new Date().getMonth() + 1 || month > new Date().getMonth() + 1 && year >= new Date().getFullYear() || year > new Date().getFullYear()) {
             items.updateDate(this, fullDate)
             document.querySelector('.calendar').remove()
         } else {
@@ -898,7 +956,7 @@ const calendar = {
                 if (dateArr[1].startsWith(0)) { month = dateArr[1].slice(1)  }
                 else { month = dateArr[1] }
         
-                if (day <= new Date().getDate() && month <= new Date().getMonth() +1 && year <= new Date().getFullYear()) {
+                if (day <= new Date().getDate() && month <= new Date().getMonth() + 1 && year <= new Date().getFullYear()) {
                     overDate.push(itemId)
 
                 } else { clearDate.push(itemId) }

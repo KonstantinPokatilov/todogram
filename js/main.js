@@ -52,6 +52,13 @@ function validation(text) {
     popUp.add(text, 'bottom', 'time')
 }
 
+function overflow() {
+    const direction = document.querySelector('main[direction]') 
+    if (direction) {
+        document.querySelector('body').style.overflow = 'hidden'
+    }    
+}
+
 const popUp = {
     
     time: 2000,
@@ -166,5 +173,7 @@ const popUp = {
     },
 }
 
+
+overflow()
 butListener()
 inputsEventListener()

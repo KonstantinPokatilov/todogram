@@ -39,6 +39,10 @@ if ($direction == 'getTasks') {
 
     echo (Tasks::updateColor($data));
 
+} else if ($direction == 'toggleItem') {
+    
+    echo (Tasks::toggleItem($data));
+    
 } else {
     print_r($data);
 }
