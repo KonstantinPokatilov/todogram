@@ -15,8 +15,7 @@ $main = '<div class="header">
     </div>
     <main class="main">
         <div class="main-projects">
-
-            <div class="my-tasks-projects" but="task-render" select="1">
+            <div class="my-tasks-projects" but="task-render" select projectid="0">
                 <img src="css/img/projects-icon.svg" alt="#" class="projects-icon">
                 <div class="my-tasks-text">Мои задачи</div>
                 <div class="task-counter counter"></div>

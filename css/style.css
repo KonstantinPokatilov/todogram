@@ -814,15 +814,12 @@ input[readonly] {
 }
 
 .move-in-project {
-    width: 40px;
+    width: 36px;
     height: 32px;
-    background: white center;
+    background:url(img/switch.svg) no-repeat white center;
     cursor: pointer;
     border-radius: 2px;
     margin-left: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .small-projects {

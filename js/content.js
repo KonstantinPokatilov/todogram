@@ -22,50 +22,50 @@ const task = {
         fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
+                console.log(json)
                 let id = 0
                 const storageProjectId = sessionStorage.getItem('projectId')
          
                 if (storageProjectId) { id = storageProjectId }
 
-                if (json) { task.parsingTasks(json, id) }       
+                if (json) { task.parsingTasks(json.projects, id) }       
             })
     },
 
     butRender: function(id = 0) {
-        if (this.getAttribute('select')) { return }
+        if (this.hasAttribute('select')) { return }
         let projectId = id
 
         if (!id) { projectId = this.getAttribute('projectId') }
         fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-                if (json) { task.parsingTasks(json, projectId) }
+                if (json) { task.parsingTasks(json.projects, projectId) }
                 else { validError(text) }
             })
         sessionStorage.setItem('projectId', projectId) 
     },
 
     parsingTasks: function(tasksJson, projectId) {
-        
         let myItems = ''
         let taskName = ''
         let doneItems = ''
         let taskColor = ''
         let projects = ''
-        let constDef = ''
+        let constDef = 0
         let isCircle = false
 
         for (const taskId in tasksJson) {
             const task = tasksJson[taskId]
             let count = 0
-
-            if (projectId) { constDef = projectId } 
-            else if (!projectId) {
-                if (task.name === 'Мои задачи') { 
-                    constDef = taskId
-                    document.querySelector('.my-tasks-projects').setAttribute('projectId', taskId)
-                }
+            
+            if (projectId) { 
+                constDef = projectId 
+            } 
+            else if (!projectId) {    
+                constDef = taskId 
             }
+
             if (taskId == constDef) {
                 if ('items' in task) {
                     for (const itemId in task.items) {
@@ -77,10 +77,10 @@ const task = {
                         let itemDate = ''        
                         
                         if ('description' in item && item.description) { itemDescription = item.description }
-                        if ('item_name' in item && item.item_name) { itemName = item.item_name }
+                        if ('name' in item && item.name) { itemName = item.name }
                         
                         if ('state' in item && item.state) { itemState = item.state }
-                        if ('date' in item && item.date) { itemDate = item.date }
+                        if ('item_date' in item && item.item_date) { itemDate = item.item_date }
 
                         let splitDate = calendar.splitDate(itemDate)
                         if (!splitDate) { splitDate = '' }
@@ -105,7 +105,7 @@ const task = {
                                             <div class="datetime-block" but="calendar-render"></div> 
                                         </div> 
                                     </div>
-                                    <div class="move-in-project" but="items-itemMove">E</div>
+                                    <div class="move-in-project" but="items-itemMove"></div>
                                     <div class="delete-point" but="items-removeItem">
                                         <img src="css/img/delete.svg" alt="">
                                     </div>
@@ -132,7 +132,7 @@ const task = {
                                         </div> 
                                     </div>    
                                 </div>
-                                    <div class="move-in-project" but="items-itemMove">E</div>
+                                    <div class="move-in-project" but="items-itemMove"></div>
                                     <div class="delete-point" but="items-removeItem">
                                         <img src="css/img/delete.svg" alt="">
                                     </div>
@@ -148,9 +148,9 @@ const task = {
                         }
                     }
                 }
-                
+            
                 taskName = task.name
-                if (task.name != 'Мои задачи' && !document.querySelector('.delete-project')) {
+                if (taskId && !document.querySelector('.delete-project')) {
                     
                     const parentAdd = document.querySelector('.add-delete-project')
                     const deleteProject = `<div class="delete-project" but="task-removeProject">
@@ -158,16 +158,16 @@ const task = {
                         </div>`
                     parentAdd.insertAdjacentHTML('beforeend', deleteProject)  
 
-                } else if (task.name == 'Мои задачи') {
+                } else if (!taskId) {
                     const removeButton = document.querySelector('.delete-project')
                     if (removeButton) { removeButton.remove() }
                 }
-                if (task.name != 'Мои задачи') { isCircle = true }
+                if (taskId != 0) { isCircle = true }
                     taskColor = task.color
                 } else {
                     for (const itemId in task.items) if (task.items[itemId].state == 0) { count++ }
                 }
-            if (task.name != 'Мои задачи') {
+            if (taskId != 0) {
                 projects += `<div class="project" but="task-render" projectId="${taskId}">
                     <div class="circle-block"><div class="project-circle" style="background: #${task.color}"></div></div>
                     <input type="color" class="input-color" but="task-chooseColor">
@@ -175,9 +175,8 @@ const task = {
                     <div class="counter">${count}</div>
                 </div>`
             
-            } else if (task.name == 'Мои задачи') {
+            } else if (taskId == 0) {
                 document.querySelector('.task-counter').innerHTML = count
-                document.querySelector('.my-tasks-projects').setAttribute('projectId', taskId)
             }
         }
         const circle = `<div class="circle-block"><div class="project-circle main-circle" style="background: #${taskColor}"></div></div>
@@ -201,9 +200,10 @@ const task = {
         document.querySelector('.actual-tasks').insertAdjacentHTML('afterbegin', myItems)
         
         const taskInput = document.querySelector('.my-tasks-text-main')
-        taskInput.value = taskName
+        if (taskName) { taskInput.value = taskName }
+        else taskInput.value = 'Мои задачи'
         
-        if (taskName == 'Мои задачи') { taskInput.setAttribute('readonly', '') } 
+        if (taskInput.value == 'Мои задачи') { taskInput.setAttribute('readonly', '') } 
         else { taskInput.removeAttribute('readonly') }
 
         document.querySelector('.done-tasks-items').innerHTML = ''
@@ -342,7 +342,7 @@ const task = {
             task.addEventListener('blur', event => {
                 const taskId = document.querySelector('div[select]').getAttribute('projectId')
 
-                if (taskId != 1) {
+                if (taskId != 0) {
                     if (items.taskValue != event.target.value) {
                         items.taskValue = event.target.value   
                         const taskArr = { id: taskId, value: event.target.value }
@@ -469,7 +469,7 @@ const items = {
                             </div>
                         </div>
                     </div>
-                    <div class="move-in-project" but="items-itemMove">E</div>
+                    <div class="move-in-project" but="items-itemMove"></div>
                     <div class="delete-point" but="items-removeItem">
                         <img src="css/img/delete.svg" alt="">
                     </div>
@@ -497,11 +497,10 @@ const items = {
                 items.butCreate()
                 return
             }
-            const projectId = document.querySelector('div[select]').getAttribute('projectId')
+            const taskId = document.querySelector('div[select]').getAttribute('projectId')
             
-            const addValues = {taskId: projectId, value: event.target.value}
+            const addValues = {projectId: taskId, value: event.target.value}
             const inputsJson = JSON.stringify(addValues)
-           
             if (addValues.value) {
                 fetch('/api/task.php?direction=addItems'+ '&data=' + inputsJson) 
                     .then(res => res.json())

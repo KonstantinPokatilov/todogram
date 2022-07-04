@@ -1,5 +1,30 @@
 <?php require_once '/var/www/html/function.php';
 
+q('
+    CREATE TABLE IF NOT EXISTS relations_user_item (
+        user_id INT NOT NULL,
+        item_id INT NOT NULL,
+        user_id_from INT
+    )
+;');
+
+q('
+    CREATE TABLE IF NOT EXISTS relations_item_task (
+        task_id INT,
+        item_id INT NOT NULL
+    )
+;');
+
+// $user_id = 39;
+// $db = q('
+//     SELECT *, relations_user_item.user_id
+//     FROM relations_user_item 
+//         LEFT JOIN items ON items.id = relations_user_item.item_id
+//         LEFT JOIN relations_item_task ON items.id = relations_item_task.item_id 
+//         LEFT JOIN task ON task.user_id = '.$user_id.' 
+//     WHERE relations_user_item.user_id = '.$user_id.'
+// ;');
+
 $main = '<main direction="authForm" com="email">
             <div class="auth-logo">
                 <img src="css/img/Vector.svg" class="icon-vec" alt="#">

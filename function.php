@@ -10,7 +10,10 @@ function q(string $request) {
     if ($mysqli->insert_id) {
         return $mysqli->insert_id;
     } 
-        return $query;
+    if ($mysqli->errno) {
+        echo $mysqli->error;
+    }
+    return $query;
 }
 
 spl_autoload_register(function($class) {
