@@ -80,7 +80,7 @@ const task = {
                         if ('name' in item && item.name) { itemName = item.name }
                         
                         if ('state' in item && item.state) { itemState = item.state }
-                        if ('item_date' in item && item.item_date) { itemDate = item.item_date }
+                        if ('date' in item && item.date) { itemDate = item.date }
 
                         let splitDate = calendar.splitDate(itemDate)
                         if (!splitDate) { splitDate = '' }
@@ -150,7 +150,7 @@ const task = {
                 }
             
                 taskName = task.name
-                if (taskId && !document.querySelector('.delete-project')) {
+                if (taskId !=0 && !document.querySelector('.delete-project')) {
                     
                     const parentAdd = document.querySelector('.add-delete-project')
                     const deleteProject = `<div class="delete-project" but="task-removeProject">
@@ -158,7 +158,7 @@ const task = {
                         </div>`
                     parentAdd.insertAdjacentHTML('beforeend', deleteProject)  
 
-                } else if (!taskId) {
+                } else if (taskId == 0) {
                     const removeButton = document.querySelector('.delete-project')
                     if (removeButton) { removeButton.remove() }
                 }
@@ -295,9 +295,7 @@ const task = {
 
     butRemoveProject: function(projectTask) {
             const projectId =  document.querySelector('div[select]').getAttribute('projectId')
-            let isClass = this.getAttribute('class') 
-    
-            fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
+            fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId)
                 .then(res => res.text())
                 .then(text => {
                     document.querySelector('.my-tasks-projects').dispatchEvent(new Event('click'))
@@ -348,7 +346,7 @@ const task = {
                         const taskArr = { id: taskId, value: event.target.value }
                         const inputsJson = JSON.stringify(taskArr)
                         if (items.taskValue) {
-                            fetch('/api/task.php?direction=updateTask'+ '&data=' + inputsJson)
+                            fetch('/api/task.php?direction=updateProject'+ '&data=' + inputsJson)
                                 .then(res => {
                                     document.querySelectorAll('.proj-text').forEach(element => {
                                         if (element.closest('div[projectId]').getAttribute('projectId') == taskId) {
@@ -502,7 +500,7 @@ const items = {
             const addValues = {projectId: taskId, value: event.target.value}
             const inputsJson = JSON.stringify(addValues)
             if (addValues.value) {
-                fetch('/api/task.php?direction=addItems'+ '&data=' + inputsJson) 
+                fetch('/api/item.php?direction=addItems'+ '&data=' + inputsJson) 
                     .then(res => res.json())
                     .then(json => {
                         let taskItem = document.querySelector('.task-item-render')
@@ -544,12 +542,11 @@ const items = {
         items.remove(parent, itemId)
     },
 
-    remove: function(parent, projectId, ) {
-        const isClass = ''
-        if (projectId) { 
-            fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId + '&isClass=' + isClass)
-                .then(res => res.text())
-                .then(text => {
+    remove: function(parent, itemId ) {
+        if (itemId) { 
+            fetch('/api/item.php?direction=deleteItem' + '&data=' + itemId)
+                .then(res => res.json())
+                .then(json => {
                     if (parent.parentElement == document.querySelector('.actual-tasks')) {
                         task.counter('minus')
                     }
@@ -570,7 +567,7 @@ const items = {
                             const itemArr = { id: itemId, value: event.target.value }
                             const inputsJson = JSON.stringify(itemArr)
                             if (items.itemValue) {
-                                fetch('/api/task.php?direction=updateItem'+ '&data=' + inputsJson) 
+                                fetch('/api/item.php?direction=updateItem'+ '&data=' + inputsJson) 
                             }                   
                         }
                     }
@@ -594,7 +591,7 @@ const items = {
                                 const addValues = { itemId: id, description: event.target.value }
                                 items.descriptions[id] = event.target.value
                                 const inputsJson = JSON.stringify(addValues)
-                                fetch('/api/task.php?direction=updateDescription'+ '&data=' + inputsJson)
+                                fetch('/api/item.php?direction=updateDescription'+ '&data=' + inputsJson)
                             }
                         }
                     }
@@ -649,7 +646,7 @@ const items = {
     saveCheck: function(state, value) {
         if (value) {
             const inputsJson = JSON.stringify(value)
-            fetch('/api/task.php?direction=check' + state + '&data=' + inputsJson)
+            fetch('/api/item.php?direction=check' + state + '&data=' + inputsJson)
         }
     },
 
@@ -685,7 +682,7 @@ const items = {
                     if (key == itemId) {
                         if (items.itemDate[key] != fullDate){ 
                             items.itemDate[itemId] = fullDate
-                            fetch('/api/task.php?direction=updateDate'+ '&data=' + inputsJson)
+                            fetch('/api/item.php?direction=updateDate'+ '&data=' + inputsJson)
                         }
                     }
                 }
@@ -774,7 +771,7 @@ const items = {
         }
         const parentItem = this.closest('div[item-id]')
         const itemId = parentItem.getAttribute('item-id')
-        fetch('/api/task.php?direction=toggleItem&data=' + JSON.stringify({projectId: projectId, itemId: itemId}))
+        fetch('/api/item.php?direction=toggleItem&data=' + JSON.stringify({projectId: projectId, itemId: itemId}))
         parentItem.remove()
         if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
             task.counter('toggle', projectId)  

@@ -6,17 +6,19 @@ class User
 
     private static $auth_dir = '/var/www/html/auth/';
 
+    public static $data = [];
+
     public static function get(array $user = []) : array
-    {
+    {   
+        if (self::$data) { return self::$data; }
+        
         if (!$user) { $user = self::cookieCipher(); }
 
         if ($user) {
-            $userData = q('SELECT * FROM user WHERE email = "'.$user['email'].'";')->fetch_assoc();
-
-            if ($userData) { return $userData; }
+            self::$data = q('SELECT * FROM user WHERE email = "'.$user['email'].'";')->fetch_assoc();
         }
 
-        return [];
+        return self::$data;
     }
 
     public static function sendAuthCode(string $email) : string
@@ -102,6 +104,23 @@ class User
         }
 
         return [];
+    }
+
+    public static function getTasksItems() : array
+    {   
+        self::get();
+        $items = Items::get();
+        $tasks = Tasks::get();
+
+        foreach($tasks as $task_id => $task_value) {
+            if (isset($task_value['items'])) {
+                $tasks[$task_id]['items'] = array_intersect_key($items, $task_value['items']);
+            }
+        }
+
+        if (self::$data['role'] == 'admin') { $tasks = ['user' => self::$data['role'], 'projects' => $tasks]; }
+
+        return $tasks;
     }
 }
 
