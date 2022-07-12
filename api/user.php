@@ -15,6 +15,14 @@ if ($direction == 'authForm-email' && $data) {
 
     echo User::exit();
 
+} else if ($direction == 'getAllUsers') {
+
+    echo (json_encode(User::getAllUsers(), JSON_UNESCAPED_UNICODE));
+
+} else if ($direction == 'changeUser') {
+
+    echo User::changeUser($data);
+
 } else {
     print_r($data);
 }

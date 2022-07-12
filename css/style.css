@@ -850,3 +850,36 @@ input[readonly] {
 .small-circle {
     margin-right: 5px;
 }
+
+.admin-changes {
+    width: 36px;
+    height: 32px;
+    background:url(img/user.svg) no-repeat white center;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-left: 10px;
+}
+
+.all-users {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 2px;
+    padding: 15px;
+    top: 45px;
+    right: 9px;
+    box-shadow: 0px 6px 15px -10px;
+    align-items: flex-start;
+    z-index: 1;
+}
+
+.email-user {
+    cursor: pointer;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.email-user:hover {
+    background: #EEEEEE;
+}

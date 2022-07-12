@@ -21,6 +21,18 @@ class User
         return self::$data;
     }
 
+    public static function getAllUsers() : array
+    {   
+        $user = self::get();
+        $users = [];
+        $result = q('SELECT id, email FROM user WHERE id != '.$user['id'].' ;');
+        while ($allUsers = $result->fetch_assoc()) {
+            $users[$allUsers['id']] = $allUsers['email'];
+        }
+
+        return $users;
+    }
+
     public static function sendAuthCode(string $email) : string
     {   
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { return 'Некорректный email'; }
@@ -118,9 +130,27 @@ class User
             }
         }
 
-        if (self::$data['role'] == 'admin') { $tasks = ['user' => self::$data['role'], 'projects' => $tasks]; }
+        if (self::$data['role']) { 
+            $tasks = ['user' => self::$data['role'], 
+            'projects' => $tasks, 
+            'email' => self::$data['email'], 
+            'fullName' => self::$data['first_name'].' '.self::$data['second_name']]; 
+        }
 
         return $tasks;
+    }
+
+    public static function changeUser(array $data) : string
+    {
+        $relDel = q('UPDATE relations_user_item SET user_id = "'.shielding($data['userId']).'" WHERE item_id = "'.$data['itemId'].'";');
+        $relTasDel = q('UPDATE relations_item_task SET task_id = 0 WHERE item_id = "'.$data['itemId'].'";');
+        
+        $messageToUser = $data['userName']. ' ('.$data['emailFrom'].') назначил вам новую задачу: '.$data['task']. '.';
+        
+        return self::sendEmail($data['emailTo'], 'Новая задача от '.$data['userName'], $messageToUser);
+        
+        if ($relDel && $relTasDel) { return true; }
+
     }
 }
 

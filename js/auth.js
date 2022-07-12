@@ -18,7 +18,7 @@ const auth = {
                 .then(text => {
                     if (text == true) {
                         document.querySelector('main').setAttribute('com', 'code')
-                        this.setAttribute('but', 'auth-checkCode')
+                        document.querySelector('[but="auth-sendCode"]').setAttribute('but', 'auth-checkCode')
                     } else {
                         validation(text)
                     }

@@ -40,7 +40,6 @@ class Tasks
             }
         }
         return $all;
-         
     }
 
     public static function delete(int $taskId) : array

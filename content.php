@@ -18,7 +18,7 @@ $main = '<div class="header">
             <div class="my-tasks-projects" but="task-render" select projectid="0">
                 <img src="css/img/projects-icon.svg" alt="#" class="projects-icon">
                 <div class="my-tasks-text">Мои задачи</div>
-                <div class="task-counter counter"></div>
+                <div class="task-counter counter">0</div>
             </div>
             <div class="projects-add">
                 <img src="css/img/project-down.svg" alt="" class="project-down" but="task-switch">

@@ -7,6 +7,11 @@ function inputsEventListener() {
         input.addEventListener('keyup', event => {
             if (event.key == 'Enter') {
                 input.dispatchEvent(new Event('blur'))
+                if (document.querySelector('main[com="email"]')) { 
+                    auth.butSendCode() 
+                } else if (document.querySelector('main[com="code"]')) {
+                    auth.butCheckCode() 
+                }
             }
             if (event.ctrlKey && event.key == 'z') {
                 const name = document.querySelector('[name="email"]')

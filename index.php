@@ -1,30 +1,5 @@
 <?php require_once '/var/www/html/function.php';
 
-q('
-    CREATE TABLE IF NOT EXISTS relations_user_item (
-        user_id INT NOT NULL,
-        item_id INT NOT NULL,
-        user_id_from INT
-    )
-;');
-
-q('
-    CREATE TABLE IF NOT EXISTS relations_item_task (
-        task_id INT,
-        item_id INT NOT NULL
-    )
-;');
-
-// $user_id = 39;
-// $db = q('
-//     SELECT *, relations_user_item.user_id
-//     FROM relations_user_item 
-//         LEFT JOIN items ON items.id = relations_user_item.item_id
-//         LEFT JOIN relations_item_task ON items.id = relations_item_task.item_id 
-//         LEFT JOIN task ON task.user_id = '.$user_id.' 
-//     WHERE relations_user_item.user_id = '.$user_id.'
-// ;');
-
 $main = '<main direction="authForm" com="email">
             <div class="auth-logo">
                 <img src="css/img/Vector.svg" class="icon-vec" alt="#">
@@ -58,8 +33,9 @@ echo '<!DOCTYPE html>
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>Todogram</title>
         <link rel="stylesheet" href="css/style.css">
+        <link rel="icon" type="image/ico" sizes="16x16" href="css/img/favicon.ico">
     </head>
     <body>
         '.$main.'

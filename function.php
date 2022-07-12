@@ -23,5 +23,6 @@ spl_autoload_register(function($class) {
 
 function shielding(string $query) : string 
 {
-    return str_replace(['"', "'", "\0", "\n", "\r", "\\"], ['\"', "\'", '\\0', '\\n', '\\r', '\\\\'], $query);
+    return str_replace([ '\\', '"'], ['\\\\', '\"'], $query);
+
 }

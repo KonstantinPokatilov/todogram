@@ -16,19 +16,30 @@ function butUserExit() {
 
 const task = {
 
+    userRole: '',
     counter: {},
+    projects: {},
+    users: {},
+    allTasks: {},
 
     firstFetch: function() {
         fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
-                console.log(json)
                 let id = 0
                 const storageProjectId = sessionStorage.getItem('projectId')
-         
+                task.allTasks = json
                 if (storageProjectId) { id = storageProjectId }
-
-                if (json) { task.parsingTasks(json.projects, id) }       
+                
+                if (Object.keys(task.allTasks.projects)[0] != 0) { task.allTasks.projects[0] = {name: 'Мои задачи'} }
+                for (const allId in task.allTasks.projects) {
+                    if (!task.allTasks.projects[allId].items) {
+                       task.allTasks.projects[allId].items = {}
+                    }
+                }
+                if (json) { task.parsingTasks(json, id) }
+                for (const taskId in json.projects) { task.projects[taskId] = json.projects[taskId].name; } 
+                task.getAllUsers()
             })
     },
 
@@ -37,12 +48,10 @@ const task = {
         let projectId = id
 
         if (!id) { projectId = this.getAttribute('projectId') }
-        fetch('/api/task.php?direction=getTasks')
-            .then(res => res.json())
-            .then(json => {
-                if (json) { task.parsingTasks(json.projects, projectId) }
-                else { validError(text) }
-            })
+        
+        if (task.allTasks) { task.parsingTasks(task.allTasks, projectId) }
+        else { validError(text) }
+
         sessionStorage.setItem('projectId', projectId) 
     },
 
@@ -55,8 +64,8 @@ const task = {
         let constDef = 0
         let isCircle = false
 
-        for (const taskId in tasksJson) {
-            const task = tasksJson[taskId]
+        for (const taskId in tasksJson.projects) {
+            const task = tasksJson.projects[taskId]
             let count = 0
             
             if (projectId) { 
@@ -162,6 +171,7 @@ const task = {
                     const removeButton = document.querySelector('.delete-project')
                     if (removeButton) { removeButton.remove() }
                 }
+                
                 if (taskId != 0) { isCircle = true }
                     taskColor = task.color
                 } else {
@@ -183,6 +193,10 @@ const task = {
         <input type="color" class="input-color" but="task-chooseColor">`
 
         task.renderItems(isCircle, circle, myItems, taskName, doneItems, projects, constDef)
+        if (tasksJson.user == 'admin') { 
+            task.userRole = tasksJson.user
+            task.adminChanges() 
+        }
     },
 
     renderItems: function(isCircle, circle, myItems, taskName, doneItems, projects, constDef) {
@@ -268,7 +282,7 @@ const task = {
                 const project = document.createElement('div')
                 project.innerHTML = `<div class="project-circle"></div>
                 <input type="color" class="input-color" but="task-chooseColor">
-                <div class="proj-text"></div>
+                <div class="proj-text">Новый проект</div>
                 <div class="counter">0</div>`
 
                 project.classList.add('project')
@@ -283,6 +297,9 @@ const task = {
                 project.setAttribute('select', '')
                 
                 sessionStorage.setItem('projectId', json)
+               
+                task.projects[json] = 'Новый проект'
+                task.allTasks.projects[json] = {name: 'Новый проект', items: {}, color: ""}
             
                 task.addBanner()
                 setTimeout(() => { butListener() }, 0)
@@ -295,6 +312,8 @@ const task = {
 
     butRemoveProject: function(projectTask) {
             const projectId =  document.querySelector('div[select]').getAttribute('projectId')
+            delete task.allTasks.projects[projectId]
+            delete task.projects[projectId]
             fetch('/api/task.php?direction=deleteTask' + '&data=' + projectId)
                 .then(res => res.text())
                 .then(text => {
@@ -329,8 +348,8 @@ const task = {
                 <div class="flex-none">Выполненные задачи</div>
                 <div class="done-tasks-border">
                 </div>
-            <div class="done-tasks-items invisible"></div> 
-            </div>`
+            </div>
+            <div class="done-tasks-items invisible"></div> `
         donePoints.classList.add('done-tasks')
         document.querySelector('.task-zone').appendChild(donePoints)
     },
@@ -339,6 +358,13 @@ const task = {
         const task = document.querySelector('.my-tasks-text-main')
             task.addEventListener('blur', event => {
                 const taskId = document.querySelector('div[select]').getAttribute('projectId')
+                let projectName = event.target.value
+                
+                if (!event.target.value) {
+                    projectName = 'Новый проект' 
+                }
+                this.projects[taskId] = projectName
+                this.allTasks.projects[taskId] = {name: projectName, items: {}, color: ""}
 
                 if (taskId != 0) {
                     if (items.taskValue != event.target.value) {
@@ -391,6 +417,7 @@ const task = {
                     if (element.getAttribute('projectid') == parentId) { element.querySelector('.project-circle').style.background = event.target.value }
                 })
             }
+            task.allTasks.projects[parentId].color = event.target.value.slice(1)
             const color = event.target.value.slice(1)
             const colorObj = {projectId: parentId, color: color}
             const colorJSON = JSON.stringify(colorObj)
@@ -425,7 +452,90 @@ const task = {
         }
     },
 
+    adminChanges: function() {
+        const changeUserHtml = `<div class="admin-changes" but="task-showAllUsers"></div>`
+        document.querySelectorAll('.delete-point').forEach(element => {
+            element.insertAdjacentHTML('beforebegin', changeUserHtml)
+        }) 
+        butListener()
+    },
+
+    getAllUsers:function() {
+        fetch('/api/user.php?direction=getAllUsers')
+            .then(res => res.json())
+            .then(json => {  
+                for (const userId in json) { task.users[userId] = json[userId]; } 
+            })
+    },
+
+    butShowAllUsers: function() {
+        let users = ''
+        const allUsers = document.querySelector('.all-users')
+        if (allUsers) { 
+            allUsers.remove() 
+            return
+        }
+        else {
+            if (task.users) {
+                for (const userId in task.users) {
+                    users += `<div class="email-user" userId="${userId}" but="task-changeUser">${task.users[userId]}</div>`
+                }
+
+                const usersBlock = document.createElement('div')
+                usersBlock.innerHTML = users
+                usersBlock.classList.add('all-users')
+    
+                this.insertAdjacentElement('beforeend', usersBlock)
+                document.addEventListener('click', event => {
+                
+                    if (!event.target.closest('.admin-changes') ) {
+                        const allUsersSmall = document.querySelector('.all-users')
+                        if (allUsersSmall) {
+                            allUsersSmall.remove()
+                        } 
+                    }
+                })
+                butListener()
+            }    
+        }
+    },
+
+    butChangeUser: function() {
+        const userId = this.getAttribute('userid')
+        
+        const parentItem = this.closest('div[item-id]')
+        const email = this.textContent
+        const itemId = parentItem.getAttribute('item-id')
+        const taskValue = parentItem.querySelector('.item-input').value
+        const taskId = document.querySelector('div[select]').getAttribute('projectid')
+      
+        if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
+            task.counter('minus')  
+        } 
+        const dataJson = {
+            userId: userId,
+            itemId: itemId, 
+            emailFrom: task.allTasks.email, 
+            emailTo: email,
+            userName: task.allTasks.fullName,
+            task:taskValue
+        }
+    
+        fetch('/api/user.php?direction=changeUser&data=' + JSON.stringify(dataJson))
+        delete task.allTasks.projects[taskId].items[itemId]
+        console.log(task.allTasks)
+        document.querySelector('.all-users').remove()
+        parentItem.remove()
+    },
+    
+    addToLocalStorage: function(projectId, projectName) {
+        const localProjects = JSON.parse(localStorage.getItem('projects'))
+        localProjects[projectId] = projectName
+        localStorage.setItem('projects', JSON.stringify(localProjects))
+    },
+
     butReloadPage: function() { location.reload() }
+
 }
 
 task.firstFetch()
@@ -474,7 +584,13 @@ const items = {
                 </div>
                 <textarea type="textarea" class="textarea-task textarea-task-render invisible" placeholder="Введите краткое описание задачи"></textarea>`
 
+        
+        if (task.userRole == 'admin') { 
+            const changeUserHtml = `<div class="admin-changes" but="task-showAllUsers"></div>`
+            taskItem.querySelector('.delete-point').insertAdjacentHTML('beforebegin', changeUserHtml)   
+        }
         document.querySelector('.actual-tasks').appendChild(taskItem)
+
         taskItem.classList.add('task-item-render')
         taskItem.setAttribute('item-id', "")
         const inp = taskItem.querySelector('.item-input-render')
@@ -482,7 +598,7 @@ const items = {
         items.save(inp)   
         items.isCheck()
         items.updateItems()
-        items.isEmptyTasks()    
+        items.isEmptyTasks()  
         inputsEventListener()
         butListener()
     },  
@@ -503,6 +619,7 @@ const items = {
                 fetch('/api/item.php?direction=addItems'+ '&data=' + inputsJson) 
                     .then(res => res.json())
                     .then(json => {
+                        task.allTasks.projects[taskId].items[json] = {name: event.target.value, description: "", date: "", state: 0} 
                         let taskItem = document.querySelector('.task-item-render')
     
                         const dateBlock = `<div class="day-month-item"></div><div class="datetime-block" but="calendar-render"></div> `
@@ -539,6 +656,9 @@ const items = {
         const itemId = parent.getAttribute('item-id')
 
         const parentTask = document.querySelector('div[select]')
+        const taskId = parentTask.getAttribute('projectid')
+        delete task.allTasks.projects[taskId].items[itemId]
+
         items.remove(parent, itemId)
     },
 
@@ -559,16 +679,18 @@ const items = {
         document.querySelectorAll('.item-input').forEach(element => {
             element.addEventListener('blur', event => {
                 
-                const itemId = event.target.closest('div[item-id]').getAttribute('item-id')  
+                const itemId = event.target.closest('div[item-id]').getAttribute('item-id')
+                const parentId = document.querySelector('[select]').getAttribute('projectId')  
                 for (let key in items.itemValue) {
                     if (key == itemId) { 
-                        if (items.itemValue[key] != event.target.value){ 
+                        if (items.itemValue[key] != event.target.value) { 
                             items.itemValue[itemId] = event.target.value
                             const itemArr = { id: itemId, value: event.target.value }
                             const inputsJson = JSON.stringify(itemArr)
                             if (items.itemValue) {
                                 fetch('/api/item.php?direction=updateItem'+ '&data=' + inputsJson) 
-                            }                   
+                            }  
+                            task.allTasks.projects[parentId].items[itemId].name = event.target.value           
                         }
                     }
                 } 
@@ -581,6 +703,7 @@ const items = {
         document.querySelectorAll('.textarea-task').forEach(element => {
             element.addEventListener('blur', event => {
                 const parentId = event.target.closest('div[item-id]').getAttribute('item-id')
+                const projectId = document.querySelector('[select]').getAttribute('projectId')  
                 if (itemId) { id = itemId } 
                 else { id = parentId }
                 if (element.closest('div[item-id').getAttribute('item-id') == id) {
@@ -592,6 +715,8 @@ const items = {
                                 items.descriptions[id] = event.target.value
                                 const inputsJson = JSON.stringify(addValues)
                                 fetch('/api/item.php?direction=updateDescription'+ '&data=' + inputsJson)
+        
+                                task.allTasks.projects[projectId].items[parentId].description = event.target.value    
                             }
                         }
                     }
@@ -610,8 +735,10 @@ const items = {
                 const checkParent = element.closest('div[item-id]')
                 const itemId = checkParent.getAttribute('item-id')
                 const checkInput = checkParent.querySelector('.item-input')
+                const projectId = document.querySelector('[select]').getAttribute('projectid')
         
                 if (element.checked) {
+                    task.allTasks.projects[projectId].items[itemId].state = '1'
                     checkParent.classList.add('task-done-item') 
                     checkInput.classList.add('item-done-text')
                     const before = document.querySelector('.done-tasks-items')
@@ -621,6 +748,7 @@ const items = {
                     items.isEmptyTasks()     
                     items.saveCheck('Select', itemId)
                 } else { 
+                    task.allTasks.projects[projectId].items[itemId].state = 0
                     task.counter('plus')
                     items.saveCheck('Unselect', itemId)
                     
@@ -738,34 +866,44 @@ const items = {
 
     butItemMove: function() {
         let projects = ''
-        if (document.querySelector('.small-projects')) { document.querySelector('.small-projects').remove() } 
-        else {
-            fetch('/api/task.php?direction=getTasks')
-            .then(res => res.json())
-            .then(json => {
-                if (json) { 
-                    for (const taskId in json) {
-                    const task = json[taskId]
-                        projects += `<div  class="one-small-project" projectId="${taskId}" but="items-toggleItem">
-                                        <div class="project-circle small-circle" style="background: #${task.color}"></div>
-                                        <div>${task.name}</div>
-                                    </div>`
-                    }
-                    const parentBlock = this.closest('div[item-id]')
-                    let projectsBlock = document.createElement('div')
-                    projectsBlock.innerHTML = projects
-    
-                    projectsBlock.classList.add('small-projects')
-                    parentBlock.insertAdjacentElement('beforeend', projectsBlock)
-                    butListener()  
+
+        let smallProjects = document.querySelector('.small-projects')
+        if (smallProjects) { 
+            smallProjects.remove() 
+        } else if (task.projects) {
+            if ('0' in task.projects) { task.projects[0] = {name: 'Мои задачи'} }
+
+            for (const taskId in task.projects) {
+                let taskName = task.projects[taskId]
+                if (taskId == 0) { taskName = 'Мои задачи' }
+                    projects += `<div  class="one-small-project" projectId="${taskId}" but="items-toggleItem">
+                                    <div>${taskName}</div>
+                                </div>`
+            }
+
+            let projectsBlock = document.createElement('div')
+            projectsBlock.innerHTML = projects
+
+            projectsBlock.classList.add('small-projects')
+            this.insertAdjacentElement('beforeend', projectsBlock)
+            
+            document.addEventListener('click', event => {
+                
+                if (!event.target.closest('.move-in-project') ) {
+                    const taskItemSmall = document.querySelector('.small-projects')
+                    if (taskItemSmall) {
+                        taskItemSmall.remove()
+                    } 
                 }
             })
+            butListener()  
         } 
     },
 
     butToggleItem: function() {
         const projectId = this.getAttribute('projectid')
-        if (projectId == document.querySelector('div[select]').getAttribute('projectid')) { 
+        const thisProjectId = document.querySelector('div[select]').getAttribute('projectid')
+        if (projectId == thisProjectId) { 
             document.querySelector('.small-projects').remove()
             return 
         }
@@ -775,8 +913,13 @@ const items = {
         parentItem.remove()
         if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
             task.counter('toggle', projectId)  
-        } 
-    }
+        }
+        
+        const item = task.allTasks.projects[thisProjectId].items[itemId]
+        
+        task.allTasks.projects[projectId].items[itemId] = {name: item.name, description: item.description, date: item.date, state: item.state, id: item.id}
+        delete task.allTasks.projects[thisProjectId].items[itemId]
+    },
 }
 
 const calendar = {
@@ -785,9 +928,12 @@ const calendar = {
     thisYear: '',
 
     butRender: function() {
-        if (document.querySelector('.calendar')) { document.querySelector('.calendar').remove() } 
+        const calendarBlock = document.querySelector('.calendar')
+        if (calendarBlock) { 
+            calendarBlock.remove() 
+        } 
         else {
-            const parentBlock = this.closest('div[item-id]')
+            const parentBlock = this.closest('.flex-svg-date')
             const newCalendar = `<div class="calendar">
                 <div class="monthYear">
                     <div class="prev"><img src="css/img/prev.svg" alt=""></div>
@@ -814,6 +960,15 @@ const calendar = {
             calendar.switchCalendar()
             butListener()
         }
+        document.addEventListener('click', event => {
+                
+            if (!event.target.closest('.flex-svg-date') ) {
+                const calendarSmall = document.querySelector('.calendar')
+                if (calendarSmall) {
+                    calendarSmall.remove()
+                } 
+            }
+        })
         
     },
 
@@ -903,7 +1058,6 @@ const calendar = {
         else if (this.classList.contains('next-month')) { month = calendar.thisMonth + 2 }
         else { month = calendar.thisMonth + 1 }
         let year = calendar.thisYear
-        console.log(calendar.thisYear)
 
         const fullDate = year + '-' + month + '-' + day
         

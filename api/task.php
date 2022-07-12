@@ -5,8 +5,7 @@ if (isset($_REQUEST['data'])) { $data = json_decode($_REQUEST['data'], true); }
 
 if ($direction == 'getTasks') {
     
-    $selectData = User::getTasksItems();
-    echo (json_encode($selectData, JSON_UNESCAPED_UNICODE));
+    echo (json_encode(User::getTasksItems(), JSON_UNESCAPED_UNICODE));
     
 } else if ($direction == 'deleteTask') {
 
@@ -18,12 +17,11 @@ if ($direction == 'getTasks') {
 
 } else if ($direction == 'addProject') {
 
-    $projectId = Tasks::addProject($data);
-    echo (json_encode($projectId, JSON_UNESCAPED_UNICODE));
+    echo json_encode(Tasks::addProject($data), JSON_UNESCAPED_UNICODE);
 
 } else if ($direction == 'updateColor') {
 
-    echo (Tasks::updateColor($data));
+    echo Tasks::updateColor($data);
     
 } else {
     print_r($data);
