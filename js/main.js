@@ -178,7 +178,64 @@ const popUp = {
     },
 }
 
-
 overflow()
 butListener()
 inputsEventListener()
+
+// https://learn.javascript.ru/websocket
+
+const mainWebSocket = {
+    socket: null,
+    ping: {
+        time: null,
+        timeout: 10,
+        intervalId: null
+    },
+    error: {
+        event: null,
+        count: 0,
+        maxCount: 9,
+        timeout: 10
+    },
+    init: function() {
+        this.socket = new WebSocket('wss://todogram.space:9501')
+
+        this.socket.onopen = () => {
+            this.checkUser()
+            this.ping.intervalId = setInterval(() => { mainWebSocket.checkUser() }, mainWebSocket.ping.timeout * 1000)
+        }
+        this.socket.onerror = event => { this.error.event = event }
+        this.socket.onmessage = event => { this.takeMessage(event) }
+        this.socket.onclose = () => { this.close(true) }
+    },
+    sendMessage: function(text) {
+        if (typeof text == 'object') { text = JSON.stringify(text) }
+
+        this.socket.send(text)
+    },
+    takeMessage: function(event) {
+        if (event.data == 'pong') { this.ping.time = Date.now() }
+    },
+    close: function(restart = false) {
+        if (this.ping.intervalId) { clearTimeout(this.ping.intervalId) }
+
+        if (restart) {
+            if (this.error.event && this.error.count < this.error.maxCount) {
+                setTimeout(() => {
+                    mainWebSocket.init()
+                    mainWebSocket.error.count += 1
+                }, this.error.timeout * 1000)
+            } else {
+                mainWebSocket.init()
+            }
+        }
+    },
+    checkUser: function() {
+        this.sendMessage(JSON.stringify({
+            com: 'checkUser',
+            user_id: user.id
+        }))
+    }
+}
+
+mainWebSocket.init()

@@ -14,45 +14,139 @@ function butUserExit() {
         })
 }
 
+const user = {
+    
+    users: {},
+    role: '',
+    email: '',
+    name: '',
+    id: 0,
+
+    getAllUsers: function() {
+        fetch('/api/user.php?direction=getAllUsers')
+            .then(res => res.json())
+            .then(json => {
+                for (const userId in json) { 
+                    user.users[userId] = json[userId]; 
+                } 
+                if (user.role == 'admin') {
+                    items.showSelectedUser()
+                }
+            })
+    },
+
+    butShowAllUsers: function() {
+        let users = ''
+        const allUsers = document.querySelector('.all-users')
+        if (allUsers) { 
+            allUsers.remove() 
+            return
+        }
+        else {
+            if (user.users) {
+                for (const userId in user.users) {
+                    users += `<div class="email-user" userId="${userId}" but="user-changeUser">${user.users[userId].email}</div>`
+                }
+
+                const usersBlock = document.createElement('div')
+                usersBlock.innerHTML = users
+                usersBlock.classList.add('all-users')
+    
+                this.insertAdjacentElement('beforeend', usersBlock)
+                document.addEventListener('click', event => {
+                
+                    if (!event.target.closest('.admin-changes') ) {
+                        const allUsersSmall = document.querySelector('.all-users')
+                        if (allUsersSmall) {
+                            allUsersSmall.remove()
+                        } 
+                    }
+                })
+                butListener()
+            }    
+        }
+    },
+
+    butChangeUser: function() {
+        const userId = this.getAttribute('userid')
+        
+        const parentItem = this.closest('div[item-id]')
+        const email = this.textContent
+        const itemId = parentItem.getAttribute('item-id')
+        const taskValue = parentItem.querySelector('.item-input').value
+        const taskId = document.querySelector('div[select]').getAttribute('projectid')
+        const dataJson = {
+            userId: userId,
+            userIdFrom: task.allTasks.id,
+            itemId: itemId, 
+            emailFrom: task.allTasks.email, 
+            emailTo: email,
+            userName: task.allTasks.fullName,
+            task:taskValue
+        }
+      
+        if (!parentItem.classList.contains('task-done-item')) {
+            task.counter('toggle', 'given')  
+            
+            fetch('/api/user.php?direction=changeUser&data=' + JSON.stringify(dataJson))
+            document.querySelector('.all-users').remove()
+    
+            const selectedUser = parentItem.querySelector('.selected-user')
+            selectedUser.classList.remove('invisible')
+            selectedUser.innerText = this.textContent
+            parentItem.remove()
+    
+            const item = task.allTasks.projects[taskId].items[itemId]
+            
+            task.allTasks.projects.given.items[itemId] = {name: item.name, description: item.description, date: item.date, state: item.state, id: userId}
+            delete delete task.allTasks.projects[taskId].items[itemId]
+        } 
+    },
+}
+
 const task = {
 
-    userRole: '',
     counter: {},
     projects: {},
-    users: {},
     allTasks: {},
 
     firstFetch: function() {
         fetch('/api/task.php?direction=getTasks')
             .then(res => res.json())
             .then(json => {
+                // console.log(json)
+                user.role = json.user
+                task.allTasks = json
+                user.email = json.email
+                user.name = json.fullName
+                user.id = json.id
+
+                user.getAllUsers()
+                items.sortItems()
+
                 let id = 0
                 const storageProjectId = sessionStorage.getItem('projectId')
-                task.allTasks = json
                 if (storageProjectId) { id = storageProjectId }
                 
-                if (Object.keys(task.allTasks.projects)[0] != 0) { task.allTasks.projects[0] = {name: 'Мои задачи'} }
-                for (const allId in task.allTasks.projects) {
-                    if (!task.allTasks.projects[allId].items) {
-                       task.allTasks.projects[allId].items = {}
-                    }
-                }
                 if (json) { task.parsingTasks(json, id) }
                 for (const taskId in json.projects) { task.projects[taskId] = json.projects[taskId].name; } 
-                task.getAllUsers()
             })
     },
 
     butRender: function(id = 0) {
         if (this.hasAttribute('select')) { return }
         let projectId = id
-
+        
         if (!id) { projectId = this.getAttribute('projectId') }
+        if (this.hasAttribute('given')) { projectId = 'given' }
         
         if (task.allTasks) { task.parsingTasks(task.allTasks, projectId) }
         else { validError(text) }
 
         sessionStorage.setItem('projectId', projectId) 
+        if (user.role == 'admin') {
+            items.showSelectedUser()
+        }
     },
 
     parsingTasks: function(tasksJson, projectId) {
@@ -62,6 +156,7 @@ const task = {
         let taskColor = ''
         let projects = ''
         let constDef = 0
+        let givenCount = ''
         let isCircle = false
 
         for (const taskId in tasksJson.projects) {
@@ -72,19 +167,16 @@ const task = {
                 constDef = projectId 
             } 
             else if (!projectId) {    
-                constDef = taskId 
+                constDef = taskId
             }
-
             if (taskId == constDef) {
                 if ('items' in task) {
                     for (const itemId in task.items) {
-                        
                         const item = task.items[itemId]
                         let itemName = ''
                         let itemState = ''
                         let itemDescription = ''
                         let itemDate = ''        
-                        
                         if ('description' in item && item.description) { itemDescription = item.description }
                         if ('name' in item && item.name) { itemName = item.name }
                         
@@ -110,17 +202,19 @@ const task = {
                                             <div class="svg-down" but="task-switch">
                                                 <img src="css/img/project-down.svg" class="done-description-svg done-description-item" alt="">
                                             </div>
-                                            <div class="day-month-item">${splitDate}</div>
+                                            <div class="day-month-item" but="calendar-render">${splitDate}</div>
                                             <div class="datetime-block" but="calendar-render"></div> 
                                         </div> 
                                     </div>
-                                    <div class="move-in-project" but="items-itemMove"></div>
-                                    <div class="delete-point" but="items-removeItem">
-                                        <img src="css/img/delete.svg" alt="">
+                                    <div class="buttons-flex">
+                                        <div class="move-in-project" but="items-itemMove"></div>
+                                            <div class="delete-point" but="items-removeItem">
+                                                <img src="css/img/delete.svg" alt="">
+                                            </div>
                                     </div>
-                                    </div>
-                                    <textarea type="textarea" class="textarea-task invisible" placeholder="Введите краткое описание задачи">${itemDescription}</textarea>
-                                </div>`
+                                </div>
+                                <textarea type="textarea" class="textarea-task invisible" placeholder="Введите краткое описание задачи">${itemDescription}</textarea>
+                            </div>`
                             } else {
                                 doneItems += `<div class="task-item task-done-item" item-id="${itemId}">
                                 <div class="item-flex">
@@ -136,7 +230,7 @@ const task = {
                                         <div class="svg-down" but="task-switch">
                                             <img src="css/img/project-down.svg" class="done-description-svg done-description-item" alt="">
                                         </div>
-                                        <div class="day-month-item">${splitDate}</div>
+                                        <div class="day-month-item" but="calendar-render">${splitDate}</div>
                                         <div class="datetime-block" but="calendar-render">
                                         </div> 
                                     </div>    
@@ -157,46 +251,70 @@ const task = {
                         }
                     }
                 }
-            
+
+                taskColor = task.color
                 taskName = task.name
                 if (taskId !=0 && !document.querySelector('.delete-project')) {
-                    
                     const parentAdd = document.querySelector('.add-delete-project')
                     const deleteProject = `<div class="delete-project" but="task-removeProject">
                             <img src="css/img/delete.svg" alt="">
                         </div>`
                     parentAdd.insertAdjacentHTML('beforeend', deleteProject)  
+                } 
 
-                } else if (taskId == 0) {
+                if (taskId == 0 || taskId == 'given') {
                     const removeButton = document.querySelector('.delete-project')
                     if (removeButton) { removeButton.remove() }
                 }
-                
-                if (taskId != 0) { isCircle = true }
-                    taskColor = task.color
-                } else {
-                    for (const itemId in task.items) if (task.items[itemId].state == 0) { count++ }
+              
+                if (taskId != 0 && taskId != 'given') { 
+                    isCircle = true 
                 }
-            if (taskId != 0) {
+
+                const addProjectBut = document.querySelector('.add-task-but')
+                
+                if (taskId == 'given') {
+                    addProjectBut.remove()
+                    
+                } else if (!addProjectBut) {
+                    const addProjectRender = `<div but="items-create" class="add-task-but">
+                        <div>Добавить задачу</div>
+                    </div>`
+                    document.querySelector('.add-delete-project').insertAdjacentHTML('afterbegin', addProjectRender)
+                }
+
+            } else {
+                for (const itemId in task.items) if (task.items[itemId].state == 0) { count++ }
+            }
+                
+            if (taskId != 0 && taskId != 'given') {
                 projects += `<div class="project" but="task-render" projectId="${taskId}">
+                <div class="project-color-name">
                     <div class="circle-block"><div class="project-circle" style="background: #${task.color}"></div></div>
                     <input type="color" class="input-color" but="task-chooseColor">
                     <div class="proj-text">${task.name}</div>
+                </div>
                     <div class="counter">${count}</div>
                 </div>`
             
             } else if (taskId == 0) {
                 document.querySelector('.task-counter').innerHTML = count
-            }
+            } else if (taskId == 'given') { givenCount = count }
         }
         const circle = `<div class="circle-block"><div class="project-circle main-circle" style="background: #${taskColor}"></div></div>
         <input type="color" class="input-color" but="task-chooseColor">`
-
+        
         task.renderItems(isCircle, circle, myItems, taskName, doneItems, projects, constDef)
         if (tasksJson.user == 'admin') { 
-            task.userRole = tasksJson.user
-            task.adminChanges() 
+            task.adminChanges(givenCount) 
         }
+        const select = document.querySelector('[select]')
+        if (select) { select.removeAttribute('select') }
+
+        document.querySelectorAll('[but="task-render"]').forEach(element => {
+            if (element.getAttribute('projectid') == constDef) { element.setAttribute('select', '') }
+        })
+        butListener()
     },
 
     renderItems: function(isCircle, circle, myItems, taskName, doneItems, projects, constDef) {
@@ -217,7 +335,7 @@ const task = {
         if (taskName) { taskInput.value = taskName }
         else taskInput.value = 'Мои задачи'
         
-        if (taskInput.value == 'Мои задачи') { taskInput.setAttribute('readonly', '') } 
+        if (taskInput.value == 'Мои задачи' || taskInput.value == 'Назначенные задачи') { taskInput.setAttribute('readonly', '') } 
         else { taskInput.removeAttribute('readonly') }
 
         document.querySelector('.done-tasks-items').innerHTML = ''
@@ -226,13 +344,7 @@ const task = {
         const allProjects = document.querySelector('.all-projects')
         
         if (allProjects.childElementCount == 0) { allProjects.insertAdjacentHTML('afterbegin', projects) }
-        
-        const select = document.querySelector('[select]')
-        if (select) { select.removeAttribute('select') }
-
-        document.querySelectorAll('[but="task-render"]').forEach(element => {
-            if (element.getAttribute('projectid') == constDef) { element.setAttribute('select', '') }
-        })
+    
         task.updateProject()
         items.isCheck()
         items.updateItems()
@@ -251,8 +363,8 @@ const task = {
         if (taskZone) { taskZone.remove() }
 
         const projectTask = document.createElement('div')
-        projectTask.innerHTML = `<div class="head-tasks">
-                <div class="my-task-circle">
+        projectTask.innerHTML = 
+                `<div class="my-task-circle">
                     <input type="color" class="input-color" but="task-chooseColor">
                     <div class="circle-block"><div class="project-circle main-circle"></div></div>
                     <input type="text" class="my-tasks-text my-tasks-text-main" placeholder="Новый проект">
@@ -264,11 +376,11 @@ const task = {
                     <div class="delete-project" but="task-removeProject">
                         <img src="css/img/delete.svg" alt="">
                     </div>
-                </div>    
-            </div>`
+                </div>`
         
         document.querySelector('.head-tasks').remove()
         document.querySelector('.tasks').insertAdjacentElement('afterbegin', projectTask)
+        projectTask.classList.add('head-tasks')
 
         const projectName = projectTask.querySelector('input[class="my-tasks-text my-tasks-text-main"]')
         projectName.focus()
@@ -280,9 +392,11 @@ const task = {
             .then(res => res.json())
             .then(json => {
                 const project = document.createElement('div')
-                project.innerHTML = `<div class="project-circle"></div>
-                <input type="color" class="input-color" but="task-chooseColor">
-                <div class="proj-text">Новый проект</div>
+                project.innerHTML = `<div class="project-color-name">
+                    <div class="project-circle"></div>
+                    <input type="color" class="input-color" but="task-chooseColor">
+                    <div class="proj-text">Новый проект</div>
+                </div>
                 <div class="counter">0</div>`
 
                 project.classList.add('project')
@@ -310,7 +424,7 @@ const task = {
         })      
     },
 
-    butRemoveProject: function(projectTask) {
+    butRemoveProject: function() {
             const projectId =  document.querySelector('div[select]').getAttribute('projectId')
             delete task.allTasks.projects[projectId]
             delete task.projects[projectId]
@@ -364,7 +478,7 @@ const task = {
                     projectName = 'Новый проект' 
                 }
                 this.projects[taskId] = projectName
-                this.allTasks.projects[taskId] = {name: projectName, items: {}, color: ""}
+                this.allTasks.projects[taskId].name = projectName
 
                 if (taskId != 0) {
                     if (items.taskValue != event.target.value) {
@@ -390,13 +504,13 @@ const task = {
         if (this.parentElement == document.querySelector('.done-tasks')) {
             this.querySelector('.done-task-svg').classList.toggle('rotate')
             document.querySelector('.done-tasks-items').classList.toggle('invisible')
-        } else if (this.parentElement == document.querySelector('.projects-add')) {
+        } else if (this.parentElement.parentElement == document.querySelector('.projects-add')) {
             this.classList.toggle('rotate')
             document.querySelector('.all-projects').classList.toggle('invisible')
         } else {
             this.classList.toggle('rotate180')
             const parent = this.closest('div[item-id]')
-            parent.lastElementChild.classList.toggle('invisible')
+            parent.querySelector('.textarea-task').classList.toggle('invisible')
         }
     },
 
@@ -452,80 +566,24 @@ const task = {
         }
     },
 
-    adminChanges: function() {
-        const changeUserHtml = `<div class="admin-changes" but="task-showAllUsers"></div>`
+    adminChanges: function(givenCount) {
+        const changeUserHtml = `<div class="selected-user invisible"></div><div class="admin-changes" but="user-showAllUsers"></div>`
         document.querySelectorAll('.delete-point').forEach(element => {
             element.insertAdjacentHTML('beforebegin', changeUserHtml)
         }) 
-        butListener()
-    },
 
-    getAllUsers:function() {
-        fetch('/api/user.php?direction=getAllUsers')
-            .then(res => res.json())
-            .then(json => {  
-                for (const userId in json) { task.users[userId] = json[userId]; } 
-            })
-    },
-
-    butShowAllUsers: function() {
-        let users = ''
-        const allUsers = document.querySelector('.all-users')
-        if (allUsers) { 
-            allUsers.remove() 
-            return
-        }
-        else {
-            if (task.users) {
-                for (const userId in task.users) {
-                    users += `<div class="email-user" userId="${userId}" but="task-changeUser">${task.users[userId]}</div>`
-                }
-
-                const usersBlock = document.createElement('div')
-                usersBlock.innerHTML = users
-                usersBlock.classList.add('all-users')
-    
-                this.insertAdjacentElement('beforeend', usersBlock)
-                document.addEventListener('click', event => {
-                
-                    if (!event.target.closest('.admin-changes') ) {
-                        const allUsersSmall = document.querySelector('.all-users')
-                        if (allUsersSmall) {
-                            allUsersSmall.remove()
-                        } 
-                    }
-                })
-                butListener()
-            }    
-        }
-    },
-
-    butChangeUser: function() {
-        const userId = this.getAttribute('userid')
+        if (document.querySelector('.my-tasks-projects-given')) {return}
+        const givenTask = `<div class="my-tasks-projects my-tasks-projects-given" but="task-render" projectid="given" given>
+        <div class="project-color-name">
+            <img src="css/img/user-trans.svg" alt="#" class="projects-icon">
+            <div class="my-tasks-text-given">Назначенные задачи</div>
+        </div>
+            <div class="given-task-counter counter">0</div>
+        </div>`
+        document.querySelector('.my-tasks-projects').insertAdjacentHTML('afterend', givenTask)
+        document.querySelector('.given-task-counter').innerText = givenCount
         
-        const parentItem = this.closest('div[item-id]')
-        const email = this.textContent
-        const itemId = parentItem.getAttribute('item-id')
-        const taskValue = parentItem.querySelector('.item-input').value
-        const taskId = document.querySelector('div[select]').getAttribute('projectid')
-      
-        if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
-            task.counter('minus')  
-        } 
-        const dataJson = {
-            userId: userId,
-            itemId: itemId, 
-            emailFrom: task.allTasks.email, 
-            emailTo: email,
-            userName: task.allTasks.fullName,
-            task:taskValue
-        }
-    
-        fetch('/api/user.php?direction=changeUser&data=' + JSON.stringify(dataJson))
-        delete task.allTasks.projects[taskId].items[itemId]
-        console.log(task.allTasks)
-        document.querySelector('.all-users').remove()
-        parentItem.remove()
+        butListener()
     },
     
     addToLocalStorage: function(projectId, projectName) {
@@ -577,16 +635,18 @@ const items = {
                             </div>
                         </div>
                     </div>
-                    <div class="move-in-project" but="items-itemMove"></div>
-                    <div class="delete-point" but="items-removeItem">
-                        <img src="css/img/delete.svg" alt="">
+                    <div class="buttons-flex">
+                        <div class="move-in-project" but="items-itemMove"></div>
+                        <div class="delete-point" but="items-removeItem">
+                            <img src="css/img/delete.svg" alt="">
+                        </div>
                     </div>
                 </div>
                 <textarea type="textarea" class="textarea-task textarea-task-render invisible" placeholder="Введите краткое описание задачи"></textarea>`
 
         
-        if (task.userRole == 'admin') { 
-            const changeUserHtml = `<div class="admin-changes" but="task-showAllUsers"></div>`
+        if (user.role == 'admin') { 
+            const changeUserHtml = `<div class="selected-user invisible"></div><div class="admin-changes" but="user-showAllUsers"></div>`
             taskItem.querySelector('.delete-point').insertAdjacentHTML('beforebegin', changeUserHtml)   
         }
         document.querySelector('.actual-tasks').appendChild(taskItem)
@@ -606,9 +666,10 @@ const items = {
     save: function(inp) {
         inp.addEventListener('blur', event => {
             if ('check' in inp) { return }
-
+        
             if (!inp.value) {
-                items.butCreate()
+                // inp.closest('[item-id]').remove()
+                // items.butCreate()
                 return
             }
             const taskId = document.querySelector('div[select]').getAttribute('projectId')
@@ -622,7 +683,7 @@ const items = {
                         task.allTasks.projects[taskId].items[json] = {name: event.target.value, description: "", date: "", state: 0} 
                         let taskItem = document.querySelector('.task-item-render')
     
-                        const dateBlock = `<div class="day-month-item"></div><div class="datetime-block" but="calendar-render"></div> `
+                        const dateBlock = `<div class="day-month-item" but="calendar-render"></div><div class="datetime-block" but="calendar-render"></div> `
                         if (taskItem) {
                             taskItem.querySelector('.flex-svg-date').insertAdjacentHTML('beforeend', dateBlock)
                         
@@ -711,16 +772,17 @@ const items = {
                         if (id == descId) {
                             if (items.descriptions[descId] != event.target.value) {
                                 items.descriptions[id] = event.target.value
-                                const addValues = { itemId: id, description: event.target.value }
+                    
+                                const addValues = { itemId: id }
+                                const descriptionValue = encodeURIComponent(event.target.value)
                                 items.descriptions[id] = event.target.value
                                 const inputsJson = JSON.stringify(addValues)
-                                fetch('/api/item.php?direction=updateDescription'+ '&data=' + inputsJson)
-        
+                                fetch('/api/item.php?direction=updateDescription'+ '&data=' + inputsJson + '&description=' + descriptionValue)
+                                
                                 task.allTasks.projects[projectId].items[parentId].description = event.target.value    
                             }
                         }
                     }
-                    
                 }
             })
         })
@@ -826,14 +888,16 @@ const items = {
         })
     },
     
-    timestamp: function(overDate, clearDate) {
+    dateSort: function(overDate, clearDate) {
         overDate.forEach(element => {
             document.querySelectorAll('.task-item').forEach(el => {
                 if (el.getAttribute('item-id') == element) {
                     el.classList.add('task-overdue')
                     el.querySelector('.item-input').classList.add('input-overdue')
-                    const timeBlock = el.querySelector('[but="calendar-render"]')
-                    if (timeBlock) { timeBlock.classList.add('datetime-block-overdue') }
+                    const timeBlock = el.querySelector('.datetime-block')
+                    if (timeBlock) { 
+                        timeBlock.classList.add('datetime-block-overdue') 
+                    }
                     
                     const dayMonth = el.querySelector('.day-month-item')
                     if (dayMonth) {
@@ -876,9 +940,11 @@ const items = {
             for (const taskId in task.projects) {
                 let taskName = task.projects[taskId]
                 if (taskId == 0) { taskName = 'Мои задачи' }
+                if (taskId != 'given') {
                     projects += `<div  class="one-small-project" projectId="${taskId}" but="items-toggleItem">
-                                    <div>${taskName}</div>
-                                </div>`
+                                        <div>${taskName}</div>
+                                    </div>`
+                }    
             }
 
             let projectsBlock = document.createElement('div')
@@ -920,6 +986,43 @@ const items = {
         task.allTasks.projects[projectId].items[itemId] = {name: item.name, description: item.description, date: item.date, state: item.state, id: item.id}
         delete task.allTasks.projects[thisProjectId].items[itemId]
     },
+
+    sortItems: function() {
+        if (!('0' in task.allTasks.projects)) { task.allTasks.projects[0] = {name: 'Мои задачи'} }
+
+        for (const allId in task.allTasks.projects) {
+            if (!task.allTasks.projects[allId].items) { task.allTasks.projects[allId].items = {} }
+
+            for(const itemId in task.allTasks.projects[allId].items) {
+                const item = task.allTasks.projects[allId].items[itemId]
+            } 
+        }
+
+        if (!task.allTasks.projects.given && user.role == 'admin') {
+            task.allTasks.projects['given'] = {'items': {}}
+            task.allTasks.projects['given']['name'] = 'Назначенные задачи'
+        }
+    },
+    
+    showSelectedUser: function() {
+        if (document.querySelector('[select]').hasAttribute('given')) {
+            const allItems = document.querySelectorAll('.task-item')
+            allItems.forEach(element => {
+                const elementId = element.getAttribute('item-id')
+                const givenItems = task.allTasks.projects.given.items
+                const selectedBlock = element.querySelector('.selected-user')
+                for(const itemId in givenItems) {
+                    if (itemId == elementId) {
+                        selectedBlock.innerText = user.users[givenItems[itemId].id].email
+                    }
+                }
+                selectedBlock.classList.remove('invisible')
+           })
+
+        const moveInProjectBut = document.querySelectorAll('.move-in-project')
+        moveInProjectBut.forEach(element => { element.remove() })
+        }
+    }
 }
 
 const calendar = {
@@ -1081,10 +1184,9 @@ const calendar = {
         if (itemDate) {
             const dateArr = itemDate.split('-')
             let month = ''
-            if (dateArr[1].startsWith(0)) {
-                month = dateArr[1].slice(1) - 1
-            } else { month = dateArr[1] - 1 }
-            const returnValue = dateArr[2] + ' ' + calendar.monthArr[month]
+            month = dateArr[1]
+            if (month.length == 1) { month = '0' + month }
+            const returnValue = dateArr[2] + '.' + month
             return returnValue
         }
     },
@@ -1112,6 +1214,6 @@ const calendar = {
                 } else { clearDate.push(itemId) }
             }
         }
-        items.timestamp(overDate, clearDate)
+        items.dateSort(overDate, clearDate)
     },
 }

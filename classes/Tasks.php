@@ -19,11 +19,10 @@ class Tasks
         if (!$user_id && isset($user['id'])) { $user_id = $user['id']; }
         
         $dataItems = Items::get($user_id);
-
         $all = [];
 
-        if (!empty($dataItems)) {
-            $relation = q('SELECT * FROM relations_item_task where item_id IN ('.implode(',', array_keys($dataItems)).');');
+        if (!empty($dataItems) && isset($dataItems['all'])) {
+            $relation = q('SELECT * FROM relations_item_task where item_id IN ('.implode(',', array_keys($dataItems['all'])).');');
             
             if (isset($relation)) { 
                 while ($rel = $relation->fetch_assoc()) {     

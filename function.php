@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 function q(string $request) {
     $mysqli = new mysqli("localhost", "user", "000", "base");
@@ -23,6 +23,5 @@ spl_autoload_register(function($class) {
 
 function shielding(string $query) : string 
 {
-    return str_replace([ '\\', '"'], ['\\\\', '\"'], $query);
-
+    return str_replace([ '\\', '"', '&'], ['\\\\', '\"', '\&'], $query);
 }

@@ -25,9 +25,12 @@ class User
     {   
         $user = self::get();
         $users = [];
-        $result = q('SELECT id, email FROM user WHERE id != '.$user['id'].' ;');
+        $result = q('SELECT id, email, first_name FROM user WHERE id != '.$user['id'].' ;');
         while ($allUsers = $result->fetch_assoc()) {
-            $users[$allUsers['id']] = $allUsers['email'];
+            $users[$allUsers['id']] = [
+                'email' => $allUsers['email'],
+                'name' => $allUsers['first_name']
+            ];
         }
 
         return $users;
@@ -123,26 +126,40 @@ class User
         self::get();
         $items = Items::get();
         $tasks = Tasks::get();
+        // return $tasks;
 
         foreach($tasks as $task_id => $task_value) {
             if (isset($task_value['items'])) {
-                $tasks[$task_id]['items'] = array_intersect_key($items, $task_value['items']);
+                $tasks[$task_id]['items'] = array_intersect_key($items['all'], $task_value['items']);
             }
         }
 
         if (self::$data['role']) { 
             $tasks = ['user' => self::$data['role'], 
             'projects' => $tasks, 
-            'email' => self::$data['email'], 
+            'email' => self::$data['email'],
+            'id' =>  self::$data['id'],
             'fullName' => self::$data['first_name'].' '.self::$data['second_name']]; 
+        }
+
+        if(isset($items['given'])) {
+            $tasks['projects']['given'] = [
+                'items' => $items['given'],
+                'name' => 'Назначенные задачи'
+            ];
         }
 
         return $tasks;
     }
 
     public static function changeUser(array $data) : string
-    {
-        $relDel = q('UPDATE relations_user_item SET user_id = "'.shielding($data['userId']).'" WHERE item_id = "'.$data['itemId'].'";');
+    {   
+        $relDel = q('UPDATE relations_user_item SET 
+                user_id = "'.$data['userId'].'", 
+                user_id_from = "'.$data['userIdFrom'].'" 
+            WHERE item_id = "'.$data['itemId'].'";'
+        );
+
         $relTasDel = q('UPDATE relations_item_task SET task_id = 0 WHERE item_id = "'.$data['itemId'].'";');
         
         $messageToUser = $data['userName']. ' ('.$data['emailFrom'].') назначил вам новую задачу: '.$data['task']. '.';

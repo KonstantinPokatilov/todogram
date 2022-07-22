@@ -4,6 +4,7 @@ body {
     margin: 0;
     font: 16px/22px 'Nunito-regular';
     cursor: default;
+    position: relative;
 }
 
 @font-face {
@@ -16,6 +17,11 @@ body {
 input {
     width: 100%;
     font: inherit;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: inherit;
 }
 
 main[direction="authForm"] {
@@ -55,9 +61,6 @@ main[direction="authForm"] {
     top: 498px;
     background: #F1F0F7;
 }
-input {
-    outline: none;
-}
 
 .auth-input {
     box-sizing: border-box;
@@ -88,7 +91,6 @@ div[but="auth-sendCode"],
 div[but="auth-checkCode"] {
     box-sizing: border-box;
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
     padding: 10px 10px 10px 16px;
@@ -122,7 +124,6 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 
 .header {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -177,28 +178,36 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 .main {
     display: flex;
     justify-content: space-between;
+    height: calc(100vh - 60px);
 }
 
 .main-projects {
     width: 300px;
-    height: 100vh;
     background-color: #FAFAFA;
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 0;
+    overflow-x: auto;
+    flex: none;
 }
 
 .my-tasks-projects {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    width: 260px;
+    justify-content: space-between;
     height: 36px;
     border-radius: 2px;
     margin-left: 20px;
     margin-top: 20px;
     cursor: pointer;
+    margin-right: 20px;
+    padding: 10px 10px 10px 0;
+    box-sizing: border-box;
+}
+
+.my-tasks-projects-given {  
+    margin-top: 10px;
 }
 
 .projects-icon {
@@ -208,25 +217,36 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 .counter {
     font-size: 12px;  
     color: #9089A0;
-    width: 19px;
-    text-align: center;
+    text-align: center; 
 }
 
 .task-counter {  
     margin-top: 3px;  
-    margin-right: 10px;
+}
+
+.given-task-counter {
+    margin-top: 3px;  
 }
 
 .projects-add {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    width: 260px;
+    justify-content: space-between;
     height: 19px;
     border-radius: 2px;
     margin-left: 20px;
-    margin-top: 18.5px;
-    padding-left: 10.5px;
+    margin-top: 20px;
+    padding-left: 10px;
+    margin-right: 30px;
+  
+}
+
+.project-add-flex {
+    display: flex;
+}
+
+.all-projects {
+    margin-top: 10px;
 }
 
 .project-down {
@@ -247,9 +267,11 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 
 .projects-text {
     color: #2F3133;
-    margin-left: 11.5px;
-    margin-right: 130px;
+    margin-left: 10px;
     font-weight: 600;
+}
+div[but='task-addProject'] {
+    align-self: baseline;
 }
 
 .add-project-icon {
@@ -258,25 +280,26 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 
 .project {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    height: 36px;
-    border-radius: 2px;
-    margin-left: 20px;
-    margin-top: 18.5px;
-    padding-left: 12px;
-    font-size: 14px;
-    line-height: 19px;
+    padding: 10px;
+    margin: 10px 20px 0 20px;
 }
 
-.project:hover {
+.project-color-name {
+    display: flex;
+    align-items: center;
+}
+
+div[but='task-render']:hover {
     background: #EEEEEE;
     cursor: pointer;
 }
 
 .proj-text {
-    margin-left: 12px;
-    width: 200px;
+    word-break: break-all;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .project-circle {
@@ -287,7 +310,6 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 }
 
 .chat {
-    width: 453px;
     height: 100vh;
     background-color: #FAFAFA;
     position: sticky;
@@ -295,7 +317,8 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 }
 
 .tasks {
-    width: 1167px;
+    width: 100%;
+    overflow: auto;
 }
 
 .head-tasks {
@@ -334,7 +357,15 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
     border: none;
     outline: none;
     margin-left: 10px;
-    width: 100%;
+    padding: 0px;
+}
+
+.my-tasks-text-given {
+    font-size: 16px;
+    color: #2F3133;
+    border: none;
+    outline: none;
+    margin-left: 10px;
     padding: 0px;
 }
 
@@ -361,14 +392,14 @@ div[but="auth-checkCode"] .get-code:before { content: "Проверить код
 }
 
 .task-zone {
-    padding-left: 40px;
-    padding-right: 40px;
+    padding: 0 40px 40px 40px;
 }
 
 .item-text {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    margin-right: 10px;
 }
 
 .task-item {
@@ -466,6 +497,7 @@ label[class="label-check"]::before {
 
 .flex-svg-date {
     display: flex;
+    position: relative;
 }
 
 .svg-down {
@@ -517,7 +549,7 @@ label[class="label-check"]::before {
     border: 1px solid #D7D3E1;
     border-radius: 2px;
     outline: none;
-    resize: none;
+    resize: vertical;
     color: #2F3133;
     overflow: hidden;
     font: inherit;
@@ -637,8 +669,7 @@ label[class="label-check"]::before {
     position: absolute;
     background-color: white;
     z-index: 1;
-    top: 10px;
-    right: 175px;
+    right: 40px;
 }
 
 .monthYear {
@@ -740,10 +771,11 @@ label[class="label-check"]::before {
     background: white;
     text-align: center;
     height: 27px;
-    width: 110px;
+    width: 50px;
     padding-top: 5px;
     padding-left: 5px;
     border-radius: 2px 0px 0px 2px;  
+    cursor: pointer;
 }
 
 .day-month-item-overdue {
@@ -819,7 +851,8 @@ input[readonly] {
     background:url(img/switch.svg) no-repeat white center;
     cursor: pointer;
     border-radius: 2px;
-    margin-left: 10px;
+    margin-right: 10px;
+    position: relative;
 }
 
 .small-projects {
@@ -827,10 +860,10 @@ input[readonly] {
     display: flex;
     flex-direction: column;
     background: white;
+    width: 150px;
     border-radius: 2px;
     padding: 15px;
-    top: 45px;
-    right: 9px;
+    right: 40px;
     box-shadow: 0px 6px 15px -10px;
     align-items: flex-start;
     z-index: 1;
@@ -852,12 +885,23 @@ input[readonly] {
 }
 
 .admin-changes {
+    position: relative;
     width: 36px;
     height: 32px;
     background:url(img/user.svg) no-repeat white center;
     cursor: pointer;
     border-radius: 2px;
-    margin-left: 10px;
+}
+
+.selected-user {
+    width: 240px;
+    height: 32px;
+    background-color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    box-sizing: border-box;
+    text-align: center;
 }
 
 .all-users {
@@ -867,8 +911,7 @@ input[readonly] {
     background: white;
     border-radius: 2px;
     padding: 15px;
-    top: 45px;
-    right: 9px;
+    right: 40px;
     box-shadow: 0px 6px 15px -10px;
     align-items: flex-start;
     z-index: 1;
@@ -882,4 +925,8 @@ input[readonly] {
 
 .email-user:hover {
     background: #EEEEEE;
+}
+
+.buttons-flex {
+    display: flex;
 }

@@ -24,6 +24,7 @@ $main = '<main direction="authForm" com="email">
 
 $script = '<script src="/js/main.js"></script>';
 $script .= '<script src="/js/auth.js"></script>';
+$script .= '<script src="/js/chad.js"></script>';
 
 if (User::auth() == 'true') { require_once 'content.php'; }
 
@@ -34,8 +35,8 @@ echo '<!DOCTYPE html>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Todogram</title>
-        <link rel="stylesheet" href="css/style.css">
-        <link rel="icon" type="image/ico" sizes="16x16" href="css/img/favicon.ico">
+        <link rel="stylesheet" href="/css/style.css">
+        <link rel="icon" type="image/ico" sizes="16x16" href="/css/img/favicon.ico">
     </head>
     <body>
         '.$main.'

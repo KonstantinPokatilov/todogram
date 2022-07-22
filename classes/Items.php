@@ -14,7 +14,7 @@ class Items {
         if (isset($items)) { 
             while ($itemsAr = $items->fetch_assoc()) {
                 
-                self::$data[$itemsAr['id']] = [
+                self::$data['all'][$itemsAr['id']] = [
                     'name' => $itemsAr['name'],
                     'description' => $itemsAr['description'],
                     'date' => $itemsAr['date'],
@@ -24,6 +24,19 @@ class Items {
             }
         }
 
+        $given_items =  q('SELECT * FROM relations_user_item LEFT JOIN items ON relations_user_item.item_id = items.id where user_id_from = '.$user_id.'');
+        if (isset($given_items)) { 
+            while ($itemsGiv = $given_items->fetch_assoc()) {
+                self::$data['given'][$itemsGiv['id']] = [
+                    'name' => $itemsGiv['name'],
+                    'description' => $itemsGiv['description'],
+                    'date' => $itemsGiv['date'],
+                    'state' => $itemsGiv['state'],
+                    'id' => $itemsGiv['user_id'],
+                    'adminId' => $itemsGiv['user_id_from'],
+                ];
+            }
+        }
         return self::$data;
     }
 
@@ -57,12 +70,9 @@ class Items {
         }   
     }
 
-    public static function updateDescription(array $data) : string
+    public static function updateDescription(int $itemId, string $description) : bool
     {
-        if ($data) {
-            q('UPDATE items SET description = "'.shielding($data['description']).'" WHERE id = "'.$data['itemId'].'";');
-            return 'true';
-        }
+        return q('UPDATE items SET description = "'.shielding($description).'" WHERE id = "'.$itemId.'";');
     }
 
     public static function toggleItem(array $data) : bool

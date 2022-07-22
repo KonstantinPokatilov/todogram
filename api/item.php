@@ -1,7 +1,8 @@
 <?php require_once '/var/www/html/function.php';
 
 if (isset($_REQUEST['direction'])) { $direction = $_REQUEST['direction']; } else { exit('false'); }
-if (isset($_REQUEST['data'])) { $data = json_decode($_REQUEST['data'], true); }
+if (isset($_REQUEST['data'])) { $data = json_decode($_REQUEST['data'], true, JSON_INVALID_UTF8_SUBSTITUTE); }
+if (isset($_REQUEST['description'])) { $description = $_REQUEST['description']; }
 
 if ($direction == 'addItems') {
 
@@ -18,7 +19,8 @@ if ($direction == 'addItems') {
 
 } else if ($direction == 'updateDescription') {
 
-    echo (Items::updateDescription($data));
+    echo (Items::updateDescription($data['itemId'], $description));
+ 
 
 } else if ($direction == 'updateItem' || $direction == 'updateDate') {
 

@@ -16,13 +16,17 @@ $main = '<div class="header">
     <main class="main">
         <div class="main-projects">
             <div class="my-tasks-projects" but="task-render" select projectid="0">
-                <img src="css/img/projects-icon.svg" alt="#" class="projects-icon">
-                <div class="my-tasks-text">Мои задачи</div>
+                <div class="project-color-name">
+                    <img src="css/img/projects-icon.svg" alt="#" class="projects-icon">
+                    <div class="my-tasks-text">Мои задачи</div>
+                </div>    
                 <div class="task-counter counter">0</div>
             </div>
             <div class="projects-add">
-                <img src="css/img/project-down.svg" alt="" class="project-down" but="task-switch">
-                <div class="projects-text">Проекты</div>
+                <div class="project-add-flex">
+                    <img src="css/img/project-down.svg" alt="" class="project-down" but="task-switch">
+                    <div class="projects-text">Проекты</div>
+                </div>   
                 <div but="task-addProject">
                     <img src="css/img/add-project.svg" alt="" class="add-project-icon">
                 </div>
