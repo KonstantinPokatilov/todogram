@@ -174,7 +174,7 @@ const popUp = {
     },
 
     butPopUpNot: function() {
-        console.log('Не ок')
+        console.log('Не ок!')
     },
 }
 
