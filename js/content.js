@@ -28,10 +28,13 @@ const user = {
             .then(json => {
                 for (const userId in json) { 
                     user.users[userId] = json[userId]; 
-                } 
+                }
+
                 if (user.role == 'admin') {
                     items.showSelectedUser()
                 }
+
+                mainWebSocket.init()
             })
     },
 

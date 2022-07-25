@@ -72,14 +72,43 @@ const chad = {
                 if (event.which == 13) {
                     const sendData = {
                         com: 'sendMessage',
-                        user_id: chadContainerUserList.getAttribute('id'),
+                        from_uid: user.id,
+                        to_uid: chadContainerUserList.getAttribute('id'),
                         text: chadContainerInput.value
                     }
 
                     mainWebSocket.sendMessage(sendData)
+                    this.addMessage({text: chadContainerInput.value, from_uid: user.id})
+
+                    chadContainerInput.value = ''
                 }
             }
         }
+    },
+    addMessage: function(data) {
+        const chadContainerMessageList = this.dom.querySelector('.chad-container-message-list')
+        const chadContainerUserList = this.dom.querySelector('.chad-container-user-list')
+
+        if (data.text) {
+            const message = document.createElement('div')
+            message.classList.add('chad-container-message-list-message')
+            message.innerText = data.text
+
+            if (data.from_uid == user.id) { message.setAttribute('me', '') }
+
+            chadContainerMessageList.append(message)
+
+            if (data.from_uid in user.users) {
+                chadContainerUserList.setAttribute('id', data.from_uid)
+                chadContainerUserList.setAttribute('name', user.users[data.from_uid].name)
+                chadContainerUserList.setAttribute('email', user.users[data.from_uid].email)
+            }
+        }
+
+        chadContainerMessageList.scrollTo({
+            top: chadContainerMessageList.scrollHeight,
+            behavior: 'smooth'
+        });
     }
 }
 

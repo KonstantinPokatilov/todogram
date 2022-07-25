@@ -44,6 +44,28 @@
 .chad-container-message-list {
     background: white;
     border-radius: 2px;
+    overflow: auto;
+}
+.chad-container-message-list-message {
+    margin: 10px 10px 10px 0px;
+    background: #2f3133;
+    color: white;
+    padding: 10px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    word-break: break-all;
+    background: #b5b5b5;
+    color: #2f3133;
+}
+.chad-container-message-list-message[me] {
+    margin: 10px 0px 10px 10px;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    text-align: right;
+    background: #626262;
+    color: white;
 }
 .chad-container-message-list-user-select {
     margin: 10px;
@@ -59,4 +81,3 @@
     padding: 4px 10px;
     border-radius: 2px;
 }
-.chad-container-input input {}

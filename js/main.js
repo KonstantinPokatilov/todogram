@@ -183,6 +183,7 @@ butListener()
 inputsEventListener()
 
 // https://learn.javascript.ru/websocket
+// инициализируется в user.getAllUsers() потому что нам нужен user
 
 const mainWebSocket = {
     socket: null,
@@ -201,8 +202,8 @@ const mainWebSocket = {
         this.socket = new WebSocket('wss://todogram.space:9501')
 
         this.socket.onopen = () => {
-            this.checkUser()
-            this.ping.intervalId = setInterval(() => { mainWebSocket.checkUser() }, mainWebSocket.ping.timeout * 1000)
+            this.pingUser()
+            this.ping.intervalId = setInterval(() => { mainWebSocket.pingUser() }, mainWebSocket.ping.timeout * 1000)
         }
         this.socket.onerror = event => { this.error.event = event }
         this.socket.onmessage = event => { this.takeMessage(event) }
@@ -214,7 +215,10 @@ const mainWebSocket = {
         this.socket.send(text)
     },
     takeMessage: function(event) {
-        if (event.data == 'pong') { this.ping.time = Date.now() }
+        const data = JSON.parse(event.data)
+
+        if (data.com == 'pingUser' && data.text == 'pong') { this.ping.time = Date.now() }
+        else if (data.com == 'takeMessage') { chad.addMessage({text: data.text, from_uid: data.from_uid}) }
     },
     close: function(restart = false) {
         if (this.ping.intervalId) { clearTimeout(this.ping.intervalId) }
@@ -230,12 +234,10 @@ const mainWebSocket = {
             }
         }
     },
-    checkUser: function() {
+    pingUser: function() {
         this.sendMessage(JSON.stringify({
-            com: 'checkUser',
-            user_id: user.id
+            com: 'pingUser',
+            uid: user.id
         }))
     }
 }
-
-mainWebSocket.init()
