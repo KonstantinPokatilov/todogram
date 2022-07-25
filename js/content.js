@@ -26,7 +26,6 @@ const user = {
         fetch('/api/user.php?direction=getAllUsers')
             .then(res => res.json())
             .then(json => {
-                console.log(json)
                 for (const userId in json) { 
                     user.users[userId] = json[userId]; 
                 }
