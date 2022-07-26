@@ -8,13 +8,16 @@ $main = '<main direction="authForm" com="email">
             <div>
                 <img src="css/img/main-logo.svg" class="main-logo" alt="#">
             </div >
-            <div class="auth-form">
+            <!--div class="auth-form">
                 <input type="email" name="email" placeholder="Введите ваш корпоративный email" class="auth-input">
                 <input type="text" name="code" placeholder="Введите код" class="auth-input input-code"></input>
                 <div but="auth-sendCode">
                     <img src="css/img/Vector-get.svg" alt="#">
                     <div class="get-code"></div>    
                 </div>
+            </div--!>
+            <div class="auth-info">
+                <div class="auth-info-text">Напишите боту в телеграме <a href="https://t.me/TodoGramSpaceBot" target="_blank">@TodoGramSpaceBot</a></div>
             </div>
             <div class="footer">
                 <img src="css/img/question-circle.svg" alt="#">
@@ -23,10 +26,16 @@ $main = '<main direction="authForm" com="email">
         </main>';
 
 $script = '<script src="/js/main.js"></script>';
-$script .= '<script src="/js/auth.js"></script>';
-$script .= '<script src="/js/chad.js"></script>';
 
-if (User::auth() == 'true') { require_once 'content.php'; }
+$style = '<link rel="stylesheet" href="/css/style.css">';
+
+if (User::auth() == 'true') {
+    require_once 'content.php';
+    $script .= '<script src="/js/chad.js"></script>';
+} else {
+    $script .= '<script src="/js/auth.js"></script>';
+    $style .= '<link rel="stylesheet" href="/css/auth.css">';
+}
 
 echo '<!DOCTYPE html>
 <html lang="ru">
@@ -35,7 +44,7 @@ echo '<!DOCTYPE html>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Todogram</title>
-        <link rel="stylesheet" href="/css/style.css">
+        '.$style.'
         <link rel="icon" type="image/ico" sizes="16x16" href="/css/img/favicon.ico">
     </head>
     <body>

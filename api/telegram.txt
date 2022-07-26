@@ -1,0 +1,634 @@
+Array
+(
+    [update_id] => 342990992
+    [message] => Array
+        (
+            [message_id] => 22
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811132
+            [text] => Активируй компьютер 15
+        )
+
+)
+start
+stop
+Array
+(
+    [update_id] => 342990993
+    [message] => Array
+        (
+            [message_id] => 23
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811164
+            [text] => Активируй компьютер 16
+        )
+
+)
+start
+ 16
+stop
+Array
+(
+    [update_id] => 342990994
+    [message] => Array
+        (
+            [message_id] => 24
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811199
+            [text] => Активируй компьютер 17
+        )
+
+)
+start
+Активируй компьютер
+Array
+(
+    [update_id] => 342990995
+    [message] => Array
+        (
+            [message_id] => 25
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811243
+            [text] => Активируй компьютер 18
+        )
+
+)
+start
+Активируй компьютер
+18Array
+(
+    [update_id] => 342990996
+    [message] => Array
+        (
+            [message_id] => 26
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811279
+            [text] => Активируй компьютер 19
+        )
+
+)
+start
+Активируй компьютер
+19Array
+(
+    [update_id] => 342990997
+    [message] => Array
+        (
+            [message_id] => 27
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811348
+            [text] => Активируй компьютер 20
+        )
+
+)
+start
+Активируй компьютер
+20Array
+(
+    [update_id] => 342990998
+    [message] => Array
+        (
+            [message_id] => 28
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811401
+            [text] => Активируй компьютер 21
+        )
+
+)
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+stop
+Array
+(
+    [update_id] => 342990999
+    [message] => Array
+        (
+            [message_id] => 29
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811631
+            [text] => Активируй компьютер 14
+        )
+
+)
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991000
+    [message] => Array
+        (
+            [message_id] => 30
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658811742
+            [text] => Активируй компьютер 14
+        )
+
+)
+true
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991001
+    [message] => Array
+        (
+            [message_id] => 31
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658812116
+            [text] => Активируй компьютер 14
+        )
+
+)
+j7CYDx4SqR42KEczFXkNtyzFvYdD8IoBhvvAfY5S5os=
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991002
+    [message] => Array
+        (
+            [message_id] => 32
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658812204
+            [text] => Активируй компьютер 16
+        )
+
+)
+Array
+(
+    [update_id] => 342991003
+    [message] => Array
+        (
+            [message_id] => 33
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658812287
+            [text] => Активируй компьютер 16
+        )
+
+)
+j7CYDx4SqR42KEczFXkNtyzFvYdD8IoBhvvAfY5S5os=
+Array
+(
+    [update_id] => 342991004
+    [message] => Array
+        (
+            [message_id] => 34
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658819361
+            [text] => Активируй компьютер 5
+        )
+
+)
+j7CYDx4SqR42KEczFXkNtyzFvYdD8IoBhvvAfY5S5os=
+
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991005
+    [message] => Array
+        (
+            [message_id] => 35
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658819468
+            [text] => Активируй компьютер 8
+        )
+
+)
+j7CYDx4SqR42KEczFXkNtyzFvYdD8IoBhvvAfY5S5os=
+
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991006
+    [message] => Array
+        (
+            [message_id] => 36
+            [from] => Array
+                (
+                    [id] => 520482759
+                    [is_bot] => 
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 520482759
+                    [first_name] => Яков
+                    [last_name] => Шевченко
+                    [username] => otezz
+                    [type] => private
+                )
+
+            [date] => 1658819601
+            [text] => Активируй компьютер 5
+        )
+
+)
+j7CYDx4SqR42KEczFXkNtyzFvYdD8IoBhvvAfY5S5os=
+
+Array
+(
+    [id] => 10
+    [email] => webmaster@gosaptekavl.ru
+    [create_at] => 2022-06-21 10:07:39
+    [update_at] => 
+    [first_name] => Яков
+    [second_name] => Шевченко
+    [third_name] => 
+    [birthday] => 
+    [phone] => 
+    [state] => 1
+    [role] => admin
+    [telegram_id] => 520482759
+)
+Array
+(
+    [update_id] => 342991017
+    [message] => Array
+        (
+            [message_id] => 47
+            [from] => Array
+                (
+                    [id] => 5201819032
+                    [is_bot] => 
+                    [first_name] => Константин
+                    [last_name] => Покатилов
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 5201819032
+                    [first_name] => Константин
+                    [last_name] => Покатилов
+                    [type] => private
+                )
+
+            [date] => 1658820261
+            [text] => фффф
+        )
+
+)
+Array
+(
+    [update_id] => 342991018
+    [message] => Array
+        (
+            [message_id] => 48
+            [from] => Array
+                (
+                    [id] => 5201819032
+                    [is_bot] => 
+                    [first_name] => Константин
+                    [last_name] => Покатилов
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 5201819032
+                    [first_name] => Константин
+                    [last_name] => Покатилов
+                    [type] => private
+                )
+
+            [date] => 1658820452
+            [text] => Активируй компьютер 4
+        )
+
+)

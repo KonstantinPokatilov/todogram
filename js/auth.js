@@ -38,3 +38,5 @@ const auth = {
         }
     }
 }
+
+mainWebSocket.init('pingComputer')

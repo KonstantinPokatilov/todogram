@@ -39,12 +39,27 @@ class SwooleWebSocket
             self::sendMessage(self::$users_fd[$data['from_uid']], ['com' => 'sendMessage', 'text' => 'send', 'to_uid' => $data['to_uid']]);
 
             q('INSERT chad_message (text, from_uid, to_uid, create_time) VALUES ("'.shielding($data['text']).'", '.$data['from_uid'].', '.$data['to_uid'].', NOW());');
+        } else if ($data['com'] == 'pingComputer') {
+            self::sendMessage(self::$frame->fd, ['com' => 'pingComputer', 'computerID' => self::$frame->fd]);
+        } else if ($data['com'] == 'resendMessage') {
+            self::sendMessage($data['fd'], $data['msg']);
+            file_put_contents('/var/www/html/test.txt', print_r($data, true));
         }
     }
 
     public static function sendMessage(int $fd, array $data)
     {
-        self::$server->push($fd, json_encode($data));
+        if (self::$server) {
+            self::$server->push($fd, json_encode($data));
+        } else {
+            $client = new SwooleWebSocketClient('194.67.113.16', 9501);
+            $client->connect();
+
+            $data['fd'] = $fd;
+            $client->send(json_encode($data));
+
+            $client->recv();
+        }
     }
 
     public static function checkMessage(int $uid)

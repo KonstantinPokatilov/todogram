@@ -1,5 +1,7 @@
 'use strict'; console.log('chad script - load')
 
+// инициализируется в user.getAllUsers() потому что нам нужен user
+
 const chad = {
     dom: null,
     init: function() {
@@ -111,5 +113,3 @@ const chad = {
         });
     }
 }
-
-chad.init()

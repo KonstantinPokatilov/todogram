@@ -35,6 +35,7 @@ const user = {
                 }
 
                 mainWebSocket.init()
+                chad.init()
             })
     },
 
@@ -646,7 +647,6 @@ const items = {
                     </div>
                 </div>
                 <textarea type="textarea" class="textarea-task textarea-task-render invisible" placeholder="Введите краткое описание задачи"></textarea>`
-
         
         if (user.role == 'admin') { 
             const changeUserHtml = `<div class="selected-user invisible"></div><div class="admin-changes" but="user-showAllUsers"></div>`
@@ -736,6 +736,8 @@ const items = {
                     }
                     parent.remove()
                 })
+        } else {
+            parent.remove()
         }
     },
 

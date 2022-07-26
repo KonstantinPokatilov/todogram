@@ -21,6 +21,11 @@ class User
         return self::$data;
     }
 
+    public static function getUserByTelegramId(int $telegram_id)
+    {
+        return q('SELECT * FROM user WHERE telegram_id = '.$telegram_id.';')->fetch_assoc();
+    }
+
     public static function getAllUsers() : array
     {   
         $user = self::get();
@@ -54,7 +59,8 @@ class User
             $decryptData = self::codeCipher($data['code'], 'decrypt');
 
             if ($decryptData['email'] == $user['email']  && $_SERVER['REMOTE_ADDR'] == $decryptData['ip']) {
-                self::cookieCipher($user, 'write');
+                if (in_array('cookie_return', $data)) { return self::cookieCipher($user, 'return')['data']; }
+                else { self::cookieCipher($user, 'write'); }
 
                 return 'true';
             }
@@ -116,6 +122,9 @@ class User
                     'email'=> $cookie_cipher,
                 ]; 
             }
+        } else if ($state == 'return' && $data) {
+            $cookie_cipher = openssl_encrypt($data['email'], 'aes-128-cbc', self::$ssl_pass, 0, self::$ssl_pass);
+            return ['data' => $cookie_cipher];
         }
 
         return [];

@@ -2,6 +2,31 @@
 
 const inputs = {}
 
+function setCookie(name, value, options = {}) {
+
+    options = {
+      path: '/',
+      // при необходимости добавьте другие значения по умолчанию
+      ...options
+    };
+  
+    if (options.expires instanceof Date) {
+      options.expires = options.expires.toUTCString();
+    }
+  
+    let updatedCookie = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+  
+    for (let optionKey in options) {
+      updatedCookie += "; " + optionKey;
+      let optionValue = options[optionKey];
+      if (optionValue !== true) {
+        updatedCookie += "=" + optionValue;
+      }
+    }
+  
+    document.cookie = updatedCookie;
+}
+
 function inputsEventListener() {
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('keyup', event => {
@@ -29,7 +54,6 @@ function butListener() {
         if (!('listenerClick' in but)) {
             but.addEventListener('click', event => {
                 const butName = but.getAttribute('but')
-
                 if (butName.includes('-')) {
                     const butNameSplit = butName.split('-')
 
@@ -198,13 +222,21 @@ const mainWebSocket = {
         maxCount: 9,
         timeout: 10
     },
-    init: function() {
+    computerID: null,
+    init: function(com = 'pingUser') {
         this.socket = new WebSocket('wss://todogram.space:9501')
 
         this.socket.onopen = () => {
-            this.pingUser()
-            this.ping.intervalId = setInterval(() => { mainWebSocket.pingUser() }, mainWebSocket.ping.timeout * 1000)
+            if (com == 'pingUser') {
+                this.pingUser()
+                this.ping.intervalId = setInterval(() => { mainWebSocket.pingUser() }, mainWebSocket.ping.timeout * 1000)
+            } else if (com == 'pingComputer') {
+                this.sendMessage(JSON.stringify({
+                    com: 'pingComputer'
+                }))
+            }
         }
+
         this.socket.onerror = event => { this.error.event = event }
         this.socket.onmessage = event => { this.takeMessage(event) }
         this.socket.onclose = () => { this.close(true) }
@@ -219,6 +251,13 @@ const mainWebSocket = {
 
         if (data.com == 'pingUser' && data.text == 'pong') { this.ping.time = Date.now() }
         else if (data.com == 'takeMessage') { chad.addMessage({text: data.text, from_uid: data.from_uid}) }
+        else if (data.com == 'pingComputer' && 'computerID' in data) {
+            this.computerID = data.computerID
+            this.auth()
+        } else if (data.com == 'userAuth' && 'code' in data) {
+            setCookie('auth', data.code, {secure: true, 'max-age': 31536000})
+            location.reload()
+        }
     },
     close: function(restart = false) {
         if (this.ping.intervalId) { clearTimeout(this.ping.intervalId) }
@@ -239,5 +278,17 @@ const mainWebSocket = {
             com: 'pingUser',
             uid: user.id
         }))
+    },
+    auth: function() {
+        const authInfoText = document.querySelector('.auth-info-text')
+        if (!authInfoText) { return false }
+
+        const authInfoTextActivate = document.createElement('div')
+        authInfoTextActivate.classList.add('auth-info-text-activate')
+        authInfoTextActivate.innerText = 'Активируй компьютер '+ this.computerID
+
+        authInfoTextActivate.onclick = event => navigator.clipboard.writeText(event.target.innerText)
+
+        authInfoText.append(authInfoTextActivate)
     }
 }
