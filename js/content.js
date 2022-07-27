@@ -971,18 +971,27 @@ const items = {
         } 
     },
 
-    butToggleItem: function() {
-        const projectId = this.getAttribute('projectid')
+    butToggleItem: function(defaultProjectId = '', defaultParentItem = '') {
+        let projectId = ''
+        let parentItem = ''
+        
+        if (!defaultProjectId) { projectId = this.getAttribute('projectid') }
+        else {projectId = defaultProjectId} 
+
+        if (!defaultParentItem) { parentItem = this.closest('div[item-id]') }
+        else {parentItem = defaultParentItem} 
+
         const thisProjectId = document.querySelector('div[select]').getAttribute('projectid')
         if (projectId == thisProjectId) { 
             document.querySelector('.small-projects').remove()
             return 
         }
-        const parentItem = this.closest('div[item-id]')
+        
         const itemId = parentItem.getAttribute('item-id')
         fetch('/api/item.php?direction=toggleItem&data=' + JSON.stringify({projectId: projectId, itemId: itemId}))
         parentItem.remove()
-        if (!this.closest('div[item-id]').classList.contains('task-done-item')) {
+        
+        if (!parentItem.closest('div[item-id]').classList.contains('task-done-item')) {
             task.counter('toggle', projectId)  
         }
         
@@ -1137,7 +1146,7 @@ const calendar = {
     
         document.querySelectorAll('.calendar-day').forEach(element => {
             const trueMonth = new Date().getMonth()
-            if (element.textContent == thisDay && calendar.thisMonth == trueMonth) {
+            if (element.textContent == thisDay && calendar.thisMonth == trueMonth && !element.classList.contains('gray-day')) {
                 element.classList.add('this-day')
                 const dot = '<div class="dot-day"></div>'
                 element.insertAdjacentHTML('beforeend', dot)
@@ -1222,3 +1231,144 @@ const calendar = {
         items.dateSort(overDate, clearDate)
     },
 }
+
+let MoveManager = new function() {
+    
+    let moveObject = {}
+    let self = this
+
+    function onMouseDown(e) {
+        if (e.buttons != 1) { return }
+
+        if (e.target == document.querySelector('.task-item') || e.target.closest('[item-id]')) {
+            moveObject.element = e.target.closest('[item-id]')
+        } else {
+            return
+        }
+
+        moveObject.downX = e.pageX
+        moveObject.downY = e.pageY
+
+        return false
+    }
+
+    function onMouseMove(e) {
+        if (!moveObject.element) { return }
+        
+        if (!moveObject.avatar) {
+            let moveX = e.pageX - moveObject.downX
+            let moveY = e.pageY - moveObject.downY
+            
+            if ( Math.abs(moveX) < 3 && Math.abs(moveY) < 3 ) {
+                return;
+            }
+
+            moveObject.avatar = createAvatar(e)
+            
+            if (!moveObject.avatar) {
+                moveObject = {}
+                return
+            }
+
+            let coords = getCoords(moveObject.avatar)
+            
+            moveObject.shiftX = moveObject.downX - coords.left
+            moveObject.shiftY = moveObject.downY - coords.top
+                
+            startMove(e)
+        }
+
+        moveObject.avatar.style.left = e.pageX - moveObject.shiftX + 'px'
+        moveObject.avatar.style.top = e.pageY - moveObject.shiftY + 'px'
+
+        return false
+    }
+
+    function onMouseUp(e) {
+        if (moveObject.avatar) {
+            finishMove(e);
+        }
+
+        moveObject = {}
+    }
+
+    function finishMove(e) {
+        let dropElem = findDroppable(e);
+      
+        if (!dropElem) {
+            self.onMoveCancel(moveObject)
+        } else {
+            self.onMoveEnd(moveObject, dropElem)
+        }
+    }
+
+    function createAvatar(e) {
+        let avatar = moveObject.element
+        let old = {
+            parent: avatar.parentNode,
+            nextSibling: avatar.nextSibling,
+            position: avatar.position || '',
+            left: avatar.left || '',
+            top: avatar.top || '',
+            zIndex: avatar.zIndex || '',
+        
+        }
+
+        avatar.rollback = function() {
+            old.parent.insertBefore(avatar, old.nextSibling)
+            avatar.style.position = old.position
+            avatar.style.left = old.left
+            avatar.style.top = old.top
+            avatar.style.zIndex = old.zIndex
+        
+        }
+        return avatar
+    }
+
+    function startMove(e) {
+        let avatar = moveObject.avatar
+    
+        document.body.appendChild(avatar)
+        
+        avatar.style.zIndex = 9999
+        avatar.style.position = 'absolute'
+
+    }
+
+    function findDroppable(event) {
+        moveObject.avatar.style.pointerEvents = 'none'
+      
+        let elem = document.elementFromPoint(event.clientX, event.clientY)
+        moveObject.avatar.style.pointerEvents = 'visible'
+        if (elem == null) {
+            return null
+        }
+
+        return elem.closest('.project')
+    }
+
+    document.onmousemove = onMouseMove
+    document.onmouseup = onMouseUp
+    document.onmousedown = onMouseDown
+
+    this.onMoveEnd = function(moveObject, dropElem) {}
+    this.onMoveCancel = function(moveObject) {}
+
+    function getCoords(elem) {  
+        let box = elem.getBoundingClientRect()
+        return {
+          top: box.top + pageYOffset,
+          left: box.left + pageXOffset
+        }
+    }
+}
+
+MoveManager.onMoveCancel = function(moveObject) {
+    moveObject.avatar.rollback();
+};
+
+MoveManager.onMoveEnd = function(moveObject, dropElem) {
+    moveObject.element.style.display = 'none';
+    const dropElemId = dropElem.getAttribute('projectid')
+    items.butToggleItem(dropElemId, moveObject.avatar)
+};
