@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+.auth-info {
+    margin-top: 50px;
+    background: #d7d3e1;
+    padding: 10px 20px;
+    border-radius: 2px;
+    color: #2e353a;
+}
+.auth-info-text {}
+.auth-info-text a {
+    text-decoration: none;
+    color: #2ba3de;
+}
+.auth-info-text-activate {
+    text-align: center;
+    cursor: pointer;
+    padding: 10px 0;
+    background: #2e353a;
+    color: #2ca5e0;
+    margin-top: 10px;
+    border-radius: 2px;
+}

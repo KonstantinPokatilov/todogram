@@ -3,7 +3,11 @@
 body {
     margin: 0;
     font: 16px/22px 'Nunito-regular';
+    cursor: default;
+    position: relative;
+    overflow: hidden;
 }
+
 @font-face {
     font-family: 'Nunito-regular';
     src: url(fonts/static/Nunito-Regular.ttf);
@@ -11,17 +15,22 @@ body {
     font-weight: normal;
 }
 
-
 input {
     width: 100%;
     font: inherit;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: inherit;
 }
 
 main[direction="authForm"] {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 170px;
+    position: relative;
+    min-height: 100vh;
 }
 
 .auth-logo {
@@ -29,7 +38,7 @@ main[direction="authForm"] {
     font-size: 43.8265px;
     color: #2F3133;
     margin-bottom: 74px;
-    
+    margin-top: 170px;
 }
 
 .icon-vec {
@@ -41,7 +50,6 @@ main[direction="authForm"] {
 
 .main-logo {
     position: relative;
-    margin-bottom: -45px;
 }
 
 .auth-form {
@@ -52,10 +60,6 @@ main[direction="authForm"] {
     left: 723px;
     top: 498px;
     background: #F1F0F7;
-    
-}
-input {
-    outline: none;
 }
 
 .auth-input {
@@ -75,7 +79,6 @@ input {
     background: url(img/Vector2.svg) no-repeat;
     background-position-y: 3px;
     padding-left: 30px;
-
 }
 
 main[com="email"] .input-code { display: none; }
@@ -84,10 +87,10 @@ main[com="email"] .input-code { display: none; }
     margin-top: 0px;
 }
 
-div[but="sendForm"] {
+div[but="auth-sendCode"],
+div[but="auth-checkCode"] {
     box-sizing: border-box;
     display: flex;
-    flex-direction: row;
     justify-content: center;
     align-items: center;
     padding: 10px 10px 10px 16px;
@@ -103,13 +106,16 @@ div[but="sendForm"] {
     margin-bottom: 30px;
 }
 
+div[but="auth-sendCode"] .get-code:before { content: "Отправить код"; }
+div[but="auth-checkCode"] .get-code:before { content: "Проверить код"; }
+
 .footer {
     font-size: 20px;
     line-height: 27px;
     color: #9089A0;
     display: flex;
-    margin-top: 285px;
-    margin-bottom: 55px;
+    margin-top: 190px;
+    margin-bottom: 34px;
 }
 
 .footer-help {
@@ -118,7 +124,6 @@ div[but="sendForm"] {
 
 .header {
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -161,31 +166,48 @@ div[but="sendForm"] {
     margin-right: 18px;
 }
 
+.email-exit {
+    display: flex;
+}
+
+.user-email {
+    color: white;
+    margin-right: 20px;
+}
+
 .main {
     display: flex;
     justify-content: space-between;
+    height: calc(100vh - 60px);
 }
 
 .main-projects {
     width: 300px;
-    height: 100vh;
     background-color: #FAFAFA;
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 0;
+    overflow-x: auto;
+    flex: none;
 }
 
 .my-tasks-projects {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    width: 260px;
+    justify-content: space-between;
     height: 36px;
     border-radius: 2px;
     margin-left: 20px;
     margin-top: 20px;
     cursor: pointer;
+    margin-right: 20px;
+    padding: 10px 10px 10px 0;
+    box-sizing: border-box;
+}
+
+.my-tasks-projects-given {  
+    margin-top: 10px;
 }
 
 .projects-icon {
@@ -195,25 +217,36 @@ div[but="sendForm"] {
 .counter {
     font-size: 12px;  
     color: #9089A0;
-    width: 19px;
-    text-align: center;
+    text-align: center; 
 }
 
 .task-counter {  
     margin-top: 3px;  
-    margin-right: 10px;
+}
+
+.given-task-counter {
+    margin-top: 3px;  
 }
 
 .projects-add {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    width: 260px;
+    justify-content: space-between;
     height: 19px;
     border-radius: 2px;
     margin-left: 20px;
-    margin-top: 18.5px;
-    padding-left: 10.5px;
+    margin-top: 20px;
+    padding-left: 10px;
+    margin-right: 30px;
+  
+}
+
+.project-add-flex {
+    display: flex;
+}
+
+.all-projects {
+    margin-top: 10px;
 }
 
 .project-down {
@@ -234,9 +267,11 @@ div[but="sendForm"] {
 
 .projects-text {
     color: #2F3133;
-    margin-left: 11.5px;
-    margin-right: 130px;
+    margin-left: 10px;
     font-weight: 600;
+}
+div[but='task-addProject'] {
+    align-self: baseline;
 }
 
 .add-project-icon {
@@ -245,25 +280,26 @@ div[but="sendForm"] {
 
 .project {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    height: 36px;
-    border-radius: 2px;
-    margin-left: 20px;
-    margin-top: 18.5px;
-    padding-left: 12px;
-    font-size: 14px;
-    line-height: 19px;
+    padding: 10px;
+    margin: 10px 20px 0 20px;
 }
 
-.project:hover {
+.project-color-name {
+    display: flex;
+    align-items: center;
+}
+
+div[but='task-render']:hover {
     background: #EEEEEE;
     cursor: pointer;
 }
 
 .proj-text {
-    margin-left: 12px;
-    width: 200px;
+    word-break: break-all;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .project-circle {
@@ -274,7 +310,6 @@ div[but="sendForm"] {
 }
 
 .chat {
-    width: 453px;
     height: 100vh;
     background-color: #FAFAFA;
     position: sticky;
@@ -282,7 +317,10 @@ div[but="sendForm"] {
 }
 
 .tasks {
-    width: 1167px;
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .head-tasks {
@@ -321,7 +359,15 @@ div[but="sendForm"] {
     border: none;
     outline: none;
     margin-left: 10px;
-    width: 100%;
+    padding: 0px;
+}
+
+.my-tasks-text-given {
+    font-size: 16px;
+    color: #2F3133;
+    border: none;
+    outline: none;
+    margin-left: 10px;
     padding: 0px;
 }
 
@@ -345,18 +391,17 @@ div[but="sendForm"] {
 .create-project-text {
     text-align: center;
     font-size: 20px;
-
 }
 
 .task-zone {
-    padding-left: 40px;
-    padding-right: 40px;
+    padding: 0 40px 40px 40px;
 }
 
 .item-text {
     display: flex;
     justify-content: space-between;
     width: 100%;
+    margin-right: 10px;
 }
 
 .task-item {
@@ -454,6 +499,7 @@ label[class="label-check"]::before {
 
 .flex-svg-date {
     display: flex;
+    position: relative;
 }
 
 .svg-down {
@@ -505,9 +551,10 @@ label[class="label-check"]::before {
     border: 1px solid #D7D3E1;
     border-radius: 2px;
     outline: none;
-    resize: none;
+    resize: vertical;
     color: #2F3133;
     overflow: hidden;
+    font: inherit;
 }
 
 .delete-project {
@@ -624,8 +671,7 @@ label[class="label-check"]::before {
     position: absolute;
     background-color: white;
     z-index: 1;
-    top: 10px;
-    right: 175px;
+    right: 40px;
 }
 
 .monthYear {
@@ -727,10 +773,11 @@ label[class="label-check"]::before {
     background: white;
     text-align: center;
     height: 27px;
-    width: 110px;
+    width: 50px;
     padding-top: 5px;
     padding-left: 5px;
     border-radius: 2px 0px 0px 2px;  
+    cursor: pointer;
 }
 
 .day-month-item-overdue {
@@ -754,4 +801,134 @@ label[class="label-check"]::before {
 
 div[but="userExit"] {
     cursor: pointer;
+}
+
+.pop-up-container {
+    background: #2F3133;
+    color: white;
+    border-radius: 2px;
+    text-align: center;
+    position: absolute;
+    display: flex;
+    flex-direction: column; 
+    width: 300px;
+    height: 150px;
+    transition: 1s;
+    margin: 10px;
+}
+
+.notice {
+    padding-top: 35px;
+}
+
+.pop-buttons {
+    display: flex;
+    align-self: center;
+    margin-top: 15px;
+    color: #2F3133;
+    width: 110px;
+    justify-content: space-around;
+}
+
+.pop-button {
+    background: white;
+    padding: 5px;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.pop-up-close {
+    position: absolute;
+    right: 3%;
+    top: 3%;
+    cursor: pointer;
+}
+input[readonly] {
+    cursor: default;
+}
+
+.move-in-project {
+    width: 36px;
+    height: 32px;
+    background:url(img/switch.svg) no-repeat white center;
+    cursor: pointer;
+    border-radius: 2px;
+    margin-right: 10px;
+    position: relative;
+}
+
+.small-projects {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    width: 150px;
+    border-radius: 2px;
+    padding: 15px;
+    right: 40px;
+    box-shadow: 0px 6px 15px -10px;
+    align-items: flex-start;
+    z-index: 1;
+}
+
+.one-small-project {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: 5px;
+    width: 100%;
+}
+.one-small-project:hover {
+    background: #EEEEEE;
+}
+
+.small-circle {
+    margin-right: 5px;
+}
+
+.admin-changes {
+    position: relative;
+    width: 36px;
+    height: 32px;
+    background:url(img/user.svg) no-repeat white center;
+    cursor: pointer;
+    border-radius: 2px;
+}
+
+.selected-user {
+    width: 240px;
+    height: 32px;
+    background-color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.all-users {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 2px;
+    padding: 15px;
+    right: 40px;
+    box-shadow: 0px 6px 15px -10px;
+    align-items: flex-start;
+    z-index: 1;
+}
+
+.email-user {
+    cursor: pointer;
+    margin-bottom: 5px;
+    width: 100%;
+}
+
+.email-user:hover {
+    background: #EEEEEE;
+}
+
+.buttons-flex {
+    display: flex;
 }

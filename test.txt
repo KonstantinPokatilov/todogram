@@ -1,0 +1,11 @@
+Array
+(
+    [com] => resendMessage
+    [msg] => Array
+        (
+            [com] => userAuth
+            [code] => I6VUK2wZF2Sl8YYtdy8LfE5p3SK8A7CIVTk7CgwD3+c=
+        )
+
+    [fd] => 7
+)

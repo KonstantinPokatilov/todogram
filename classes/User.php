@@ -6,71 +6,77 @@ class User
 
     private static $auth_dir = '/var/www/html/auth/';
 
+    public static $data = [];
+
     public static function get(array $user = []) : array
-    {
+    {   
+        if (self::$data) { return self::$data; }
+        
         if (!$user) { $user = self::cookieCipher(); }
 
         if ($user) {
-            $userData = q('SELECT * FROM user WHERE email = "'.$user['email'].'";')->fetch_assoc();
-
-            if ($userData) { return $userData; }
+            self::$data = q('SELECT * FROM user WHERE email = "'.$user['email'].'";')->fetch_assoc();
         }
 
-        return [];
+        return self::$data;
     }
 
-    public static function add(array $data) : array
+    public static function getUserByTelegramId(int $telegram_id)
     {
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return ['novalid email']; }
+        return q('SELECT * FROM user WHERE telegram_id = '.$telegram_id.';')->fetch_assoc();
+    }
 
-        if (!$user_data) {
-            $userId = q('INSERT INTO user (create_at, pswd, email) VALUES (now(), 1, "'.$data['email'].'");');
-            $taskId = q('INSERT INTO task (task_name, user_id) VALUES ("Мои задачи", '.$userId.');');
+    public static function getAllUsers() : array
+    {   
+        $user = self::get();
+        $users = [];
+        $result = q('SELECT id, email, first_name FROM user WHERE id != '.$user['id'].' ;');
+        while ($allUsers = $result->fetch_assoc()) {
+            $users[$allUsers['id']] = [
+                'email' => $allUsers['email'],
+                'name' => $allUsers['first_name']
+            ];
         }
 
-        $user_data = self::get($data);
-        
-        if ($user_data['id']) { self::cookieCipher($data, 'write'); }
+        return $users;
+    }
 
-        return $user_data;
+    public static function sendAuthCode(string $email) : string
+    {   
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { return 'Некорректный email'; }
+
+        if ($user = self::get(['email' => $email])) {
+            return self::sendEmail($email, 'auth to todogram', self::codeCipher($email));
+        }
+        return 'Нет доступа';
+    }
+
+    public static function checkAuthCode(array $data) : string
+    {
+        if (!isset($data['email']) || !isset($data['code'])) { return 'Введены неверные данные'; }
+
+        if ($user = self::get(['email' => $data['email']])) {
+            $decryptData = self::codeCipher($data['code'], 'decrypt');
+
+            if ($decryptData['email'] == $user['email']  && $_SERVER['REMOTE_ADDR'] == $decryptData['ip']) {
+                if (in_array('cookie_return', $data)) { return self::cookieCipher($user, 'return')['data']; }
+                else { self::cookieCipher($user, 'write'); }
+
+                return 'true';
+            }
+        }
+
+        return 'false';
+    }
+
+    public static function sendEmail(string $to, string $subject, string $message) : bool
+    {
+        return mb_send_mail($to, $subject, $message);
     }
 
     public static function auth(array $data = []) 
     {
-        if (self::get()) { return true; }
-        
-        
-
-        if (isset($data['email']) && isset($data['code'])) {
-            $email = $data['email'];
-            $code = $data['code'];
-        }
-
-        if (!isset($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) { return false; }
-
-        if (isset($email) && isset($code)) {
-
-            $user = self::get($data);
-
-            $decryptData = self::codeCipher($code, 'decrypt');
-            if ($decryptData['email'] == $user['email']) {
-                if ($decryptData['time'] - time() <= 900) {
-                    
-                    self::cookieCipher($decryptData, 'write');
-                    
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-            return false;
-        
-        } else if (self::get($data)) {
-            self::sendEmail($data['email'], 'auth to todogram', self::codeCipher($data['email']));
-
-            return true;
-        }
-        return false;
+        if (self::get()) { return 'true'; }
     }
 
     public static function codeCipher(string $text, string $command = 'encrypt') 
@@ -90,13 +96,14 @@ class User
         }
     }
 
-    public static function delete($direction, $taskId)
+    public static function exit() : bool
     {
-        if ($user = self::get()) {
-                $result = q('DELETE user FROM user WHERE id = "'.$user['id'].'";');
-
-                setcookie('auth', ''); 
+        if (isset($_COOKIE['auth'])) {
+            unset($_COOKIE['auth']);
+            setcookie('auth', '', -1, '/');
+            return true;
         }
+        return false;
     }
 
     private static function cookieCipher(array $data = [], string $state = 'read') : array
@@ -104,7 +111,7 @@ class User
         if ($state == 'write' && $data) {
             $cookie_cipher = openssl_encrypt($data['email'], 'aes-128-cbc', self::$ssl_pass, 0, self::$ssl_pass);
     
-            if (setcookie('auth', $cookie_cipher)) {
+            if (setcookie('auth', $cookie_cipher, time() + 60 * 60 * 24 * 365, '/', '', '', true)) {
                 return [true];
             }
         } else if ($state == 'read' && isset($_COOKIE['auth'])) {
@@ -115,23 +122,61 @@ class User
                     'email'=> $cookie_cipher,
                 ]; 
             }
+        } else if ($state == 'return' && $data) {
+            $cookie_cipher = openssl_encrypt($data['email'], 'aes-128-cbc', self::$ssl_pass, 0, self::$ssl_pass);
+            return ['data' => $cookie_cipher];
         }
 
         return [];
     }
 
-    /*
-    public static function checkAuth() : bool
-    {
-        if (self::get()) { return true; }
+    public static function getTasksItems() : array
+    {   
+        self::get();
+        $items = Items::get();
+        $tasks = Tasks::get();
+        // return $tasks;
 
-        return false;
+        foreach($tasks as $task_id => $task_value) {
+            if (isset($task_value['items'])) {
+                $tasks[$task_id]['items'] = array_intersect_key($items['all'], $task_value['items']);
+            }
+        }
+
+        if (self::$data['role']) { 
+            $tasks = ['user' => self::$data['role'], 
+            'projects' => $tasks, 
+            'email' => self::$data['email'],
+            'id' =>  self::$data['id'],
+            'fullName' => self::$data['first_name'].' '.self::$data['second_name']]; 
+        }
+
+        if(isset($items['given'])) {
+            $tasks['projects']['given'] = [
+                'items' => $items['given'],
+                'name' => 'Назначенные задачи'
+            ];
+        }
+
+        return $tasks;
     }
-    */
 
-    public static function sendEmail(string $to, string $subject, string $message) : bool
-    {
-        return mb_send_mail($to, $subject, $message);
+    public static function changeUser(array $data) : string
+    {   
+        $relDel = q('UPDATE relations_user_item SET 
+                user_id = "'.$data['userId'].'", 
+                user_id_from = "'.$data['userIdFrom'].'" 
+            WHERE item_id = "'.$data['itemId'].'";'
+        );
+
+        $relTasDel = q('UPDATE relations_item_task SET task_id = 0 WHERE item_id = "'.$data['itemId'].'";');
+        
+        $messageToUser = $data['userName']. ' ('.$data['emailFrom'].') назначил вам новую задачу: '.$data['task']. '.';
+        
+        return self::sendEmail($data['emailTo'], 'Новая задача от '.$data['userName'], $messageToUser);
+        
+        if ($relDel && $relTasDel) { return true; }
+
     }
 }
 
