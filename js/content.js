@@ -1087,7 +1087,7 @@ const calendar = {
             butListener()
         }
         document.addEventListener('click', event => {
-                
+            console.log('aasas')
             if (!event.target.closest('.flex-svg-date') ) {
                 const calendarSmall = document.querySelector('.calendar')
                 if (calendarSmall) {
