@@ -5,6 +5,7 @@ body {
     font: 16px/22px 'Nunito-regular';
     cursor: default;
     position: relative;
+    overflow: hidden;
 }
 
 @font-face {
@@ -318,6 +319,8 @@ div[but='task-render']:hover {
 .tasks {
     width: 100%;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .head-tasks {
@@ -809,7 +812,7 @@ div[but="userExit"] {
     display: flex;
     flex-direction: column; 
     width: 300px;
-    height: 120px;
+    height: 150px;
     transition: 1s;
     margin: 10px;
 }

@@ -660,3 +660,42 @@ Array
         )
 
 )
+Array
+(
+    [update_id] => 342991020
+    [message] => Array
+        (
+            [message_id] => 50
+            [from] => Array
+                (
+                    [id] => 1251362207
+                    [is_bot] => 
+                    [first_name] => BROOQUEEN
+                    [username] => Brooqueen
+                    [language_code] => ru
+                )
+
+            [chat] => Array
+                (
+                    [id] => 1251362207
+                    [first_name] => BROOQUEEN
+                    [username] => Brooqueen
+                    [type] => private
+                )
+
+            [date] => 1660528084
+            [text] => /start
+            [entities] => Array
+                (
+                    [0] => Array
+                        (
+                            [offset] => 0
+                            [length] => 6
+                            [type] => bot_command
+                        )
+
+                )
+
+        )
+
+)

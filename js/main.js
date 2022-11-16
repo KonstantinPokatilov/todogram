@@ -97,16 +97,18 @@ const popUp = {
 
     popUpContainer: null,
 
+    callObject: '',
+
     maket: `<div class="notice"></div>
             <div class="notice-description"></div>`,
 
     buttons: `<div class="pop-buttons">
-                <div class="pop-button" but="popUp-popUpOk">Ок</div>
-                <div class="pop-button" but="popUp-popUpNot">Не ок</div>
+                <div class="pop-button" but="popUp-popUpOk">Да</div>
+                <div class="pop-button" but="popUp-popUpNot">Нет</div>
             </div>`,
 
     close: `<div class="pop-buttons" but="popUp-closePopUp">
-                <div class="pop-button">Ок</div>
+                <div class="pop-button" but="popUpOk">Ок</div>
             </div>`,
    
     init: function() {
@@ -118,12 +120,15 @@ const popUp = {
             this.popUpContainer = document.createElement('div')
             this.popUpContainer.classList.add('pop-up-container')
             this.popUpContainer.innerHTML = popUp.maket
+            this.popUpContainer.setAttribute('obj', this.callObject)
 
             document.querySelector('body').insertAdjacentElement('beforeend', this.popUpContainer)
         }
     },
 
-    add: function(text, positionCommand, type) {     
+    add: function(text, positionCommand, type, callObject = '') {     
+        
+        this.callObject = callObject
         this.init()
 
         const position = {}
@@ -194,11 +199,17 @@ const popUp = {
     },
 
     butPopUpOk: function() {
-        console.log('Ок')
+        const obj = this.closest('[obj')
+        const objProject = obj.getAttribute('obj')
+        if (objProject == 'removeProject') {
+            task.butRemoveProject(true)
+            obj.remove()
+        }
     },
 
     butPopUpNot: function() {
-        console.log('Не ок!')
+        const obj = this.closest('[obj')
+        obj.remove()
     },
 }
 

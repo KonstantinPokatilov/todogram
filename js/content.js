@@ -128,7 +128,7 @@ const task = {
                 user.getAllUsers()
                 items.sortItems()
 
-                let id = 0
+                let id = '0'
                 const storageProjectId = sessionStorage.getItem('projectId')
                 if (storageProjectId) { id = storageProjectId }
                 
@@ -428,7 +428,15 @@ const task = {
         })      
     },
 
-    butRemoveProject: function() {
+    butRemoveProject: function(result = false) {
+        const actual = document.querySelector('.actual-tasks')
+        if (!document.querySelector('.greetings') && actual.childElementCount > 0) {
+            popUp.add('Вы действительно хотите удалить этот проект?', 'bottom', 'btn', 'removeProject')
+        } else {
+            result = true
+        }
+        
+        if (result) {
             const projectId =  document.querySelector('div[select]').getAttribute('projectId')
             delete task.allTasks.projects[projectId]
             delete task.projects[projectId]
@@ -442,6 +450,7 @@ const task = {
                         if (element.getAttribute('projectId') == projectId) { element.remove() }
                     })
                 })      
+        }
     },
 
     addBanner: function() { 
@@ -1232,20 +1241,35 @@ const calendar = {
     },
 }
 
-let MoveManager = new function() {
+const MoveManager = new function() {
     
     let moveObject = {}
     let self = this
 
     function onMouseDown(e) {
+        let textareaElement = ''
+        let inputElement = ''
+
         if (e.buttons != 1) { return }
+        document.querySelectorAll('textarea').forEach(element => {
+            if (e.target == element) {
+                textareaElement = element
+            }
+        })
 
-        if (e.target == document.querySelector('.task-item') || e.target.closest('[item-id]')) {
-            moveObject.element = e.target.closest('[item-id]')
-        } else {
+        document.querySelectorAll('.item-input').forEach(element => {
+            if (e.target == element) {
+                inputElement = element
+            }
+        })
+
+        if (e.target == textareaElement || e.target == inputElement) {
             return
+        } else if (e.target == document.querySelector('.task-item') || e.target.closest('[item-id]')) {
+            moveObject.element = e.target.closest('[item-id]')
+        } else { 
+            return 
         }
-
         moveObject.downX = e.pageX
         moveObject.downY = e.pageY
 
@@ -1270,10 +1294,10 @@ let MoveManager = new function() {
                 return
             }
 
-            let coords = getCoords(moveObject.avatar)
+            // let coords = getCoords(moveObject.avatar)
             
-            moveObject.shiftX = moveObject.downX - coords.left
-            moveObject.shiftY = moveObject.downY - coords.top
+            moveObject.shiftX = moveX
+            moveObject.shiftY = moveY
                 
             startMove(e)
         }
@@ -1343,8 +1367,9 @@ let MoveManager = new function() {
         if (elem == null) {
             return null
         }
-
-        return elem.closest('.project')
+        if (elem.closest('.project')) { return elem.closest('.project') }
+        else if (elem.closest('.my-tasks-projects-given')) { return } 
+        else if (elem.closest('.my-tasks-projects')) { return elem.closest('.my-tasks-projects') }
     }
 
     document.onmousemove = onMouseMove
@@ -1354,13 +1379,14 @@ let MoveManager = new function() {
     this.onMoveEnd = function(moveObject, dropElem) {}
     this.onMoveCancel = function(moveObject) {}
 
-    function getCoords(elem) {  
-        let box = elem.getBoundingClientRect()
-        return {
-          top: box.top + pageYOffset,
-          left: box.left + pageXOffset
-        }
-    }
+    // function getCoords(elem) {  
+    //     let box = elem.getBoundingClientRect()
+    //     console.log(box)
+    //     return {
+    //       top: box.top + scrollY,
+    //       left: box.left + scrollX
+    //     }
+    // }
 }
 
 MoveManager.onMoveCancel = function(moveObject) {
